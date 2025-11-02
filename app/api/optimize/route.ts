@@ -37,6 +37,8 @@ export async function POST(request: Request) {
       4.  **Format Specification:** Define the desired output format (e.g., Markdown table, JSON, bullet points).
 
       Rewrite the following user prompt. Return ONLY the new, optimized prompt, without any explanations or extra text.
+      Do not use MARKDOWN to build the optimized prompt.
+      Unless otherwise specified, Traditional Chinese will be used as the default language for the response.
 
       Original Prompt: "${prompt}"
 

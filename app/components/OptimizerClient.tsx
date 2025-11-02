@@ -5,6 +5,8 @@
 import { useState } from 'react';
 import PromptForm from './PromptForm';
 import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 
 export default function OptimizerClient() {
   // 所有狀態管理 (useState) 都移到這裡
@@ -77,7 +79,9 @@ export default function OptimizerClient() {
               <h3 className="text-xl font-bold text-gray-700 mb-3">AI Output (Original):</h3>
               <div className="p-4 bg-white border border-gray-300 rounded-lg shadow-sm">
                 <article className="prose prose-sm max-w-none text-gray-800">
-                  <ReactMarkdown>{originalResult}</ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                    {originalResult}
+                  </ReactMarkdown>
                 </article>
               </div>
             </div>
@@ -96,7 +100,9 @@ export default function OptimizerClient() {
                   <h3 className="text-xl font-bold text-indigo-700 mb-3">AI Output (Optimized):</h3>
                   <div className="p-4 bg-white border border-indigo-300 rounded-lg shadow-sm">
                     <article className="prose prose-sm max-w-none text-gray-800">
-                      <ReactMarkdown>{optimizedResult}</ReactMarkdown>
+                      <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                        {optimizedResult}
+                      </ReactMarkdown>
                     </article>
                   </div>
                 </div>
