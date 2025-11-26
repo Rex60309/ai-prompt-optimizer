@@ -2,31 +2,27 @@
 
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import Groq from 'groq-sdk';
 
-// 導出 POST 函式，所有的邏輯都在這裡面
+// 初始化 Groq 客戶端
+const groqClient = new Groq({
+  apiKey: process.env.GROQ_API_KEY || '',
+});
+
 export async function POST(request: Request) {
-  // --- 把檢查邏輯移到函式內部最前面 ---
-  const apiKey = process.env.GOOGLE_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json(
-      { error: "Server configuration error: Google API key is not set." },
-      { status: 500 }
-    );
-  }
-  // --- 檢查結束 ---
-
-  // 只有在金鑰存在時，才繼續執行後面的程式碼
-  const genAI = new GoogleGenerativeAI(apiKey);
-
   try {
-    const { prompt } = await request.json();
+    // 1. 接收 model 參數
+    const { prompt, model } = await request.json();
 
     if (!prompt) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    // 2. 設定預設值 (如果前端沒傳)
+    const targetModel = model || 'gemini-2.5-flash';
+    let optimizedPrompt = '';
 
+    // --- Meta Prompt (提示工程師的核心指令) ---
     const metaPrompt = `
       You are a world-class Prompt Engineer. Your task is to take a user's prompt and meticulously rewrite it to be more effective for a large language model.
 
@@ -38,20 +34,55 @@ export async function POST(request: Request) {
 
       Rewrite the following user prompt. Return ONLY the new, optimized prompt, without any explanations or extra text.
       Do not use MARKDOWN to build the optimized prompt.
-      Unless otherwise specified, Traditional Chinese will be used as the default language for the response.
+      Unless otherwise specified, use Traditional Chinese for the response.
+      若原始的prompt為詢問教學的內容，請一次回答完所有內容
 
       Original Prompt: "${prompt}"
 
       Optimized Prompt:
     `;
 
-    const result = await model.generateContent(metaPrompt);
-    const optimizedPrompt = result.response.text();
+    // --- 分流邏輯：根據模型名稱決定使用哪家供應商 ---
+
+    // A. Google Gemini 系列
+    if (targetModel.includes('gemini')) {
+      const googleApiKey = process.env.GOOGLE_API_KEY;
+      if (!googleApiKey) {
+        throw new Error("Server config error: GOOGLE_API_KEY is missing.");
+      }
+      const genAI = new GoogleGenerativeAI(googleApiKey);
+      const aiModel = genAI.getGenerativeModel({ model: targetModel });
+      const result = await aiModel.generateContent(metaPrompt);
+      optimizedPrompt = result.response.text();
+    }
+    // B. Groq 系列 (Llama, Mixtral)
+    else if (targetModel.includes('llama') || targetModel.includes('mixtral')) {
+      const groqApiKey = process.env.GROQ_API_KEY;
+      if (!groqApiKey) {
+        throw new Error("Server config error: GROQ_API_KEY is missing.");
+      }
+      const chatCompletion = await groqClient.chat.completions.create({
+        messages: [{ role: "user", content: metaPrompt }],
+        model: targetModel,
+        temperature: 0.7,
+      });
+      optimizedPrompt = chatCompletion.choices[0]?.message?.content || "";
+    }
+    // C. 未知模型
+    else {
+      // 如果遇到未知的模型，退回到預設的 Gemini (或拋出錯誤)
+      console.warn(`Unknown model ${targetModel}, falling back to gemini-2.5-flash`);
+      const googleApiKey = process.env.GOOGLE_API_KEY!;
+      const genAI = new GoogleGenerativeAI(googleApiKey);
+      const aiModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      const result = await aiModel.generateContent(metaPrompt);
+      optimizedPrompt = result.response.text();
+    }
 
     return NextResponse.json({ optimizedPrompt });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in /api/optimize:', error);
-    return NextResponse.json({ error: 'Failed to optimize prompt.' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Failed to optimize prompt.' }, { status: 500 });
   }
 }
