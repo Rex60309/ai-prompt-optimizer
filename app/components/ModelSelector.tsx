@@ -7,21 +7,17 @@ interface ModelSelectorProps {
   label?: string;
 }
 
-// 更新模型列表：移除舊版 Llama 3，改用 Llama 3.1 和 3.3
+// Model list
 const AVAILABLE_MODELS = [
   // --- Google Models ---
-  { id: 'gemini-2.5-flash', name: 'Google: Gemini 2.5 Flash (最新快速)' },
-  { id: 'gemini-1.5-pro', name: 'Google: Gemini 1.5 Pro (強大推理)' },
+  { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash' },
+  { id: 'gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash Lite' },
+  { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro' },
 
-  // --- Groq Models (更新為目前支援的版本) ---
-  // 舊的 llama3-8b-8192 已失效，改用這個：
-  { id: 'llama-3.1-8b-instant', name: 'Groq: Llama 3.1 8B (極速)' },
-
-  // 舊的 llama3-70b-8192 已失效，改用最新的 3.3 版本：
-  { id: 'llama-3.3-70b-versatile', name: 'Groq: Llama 3.3 70B (均衡)' },
-
-  // Mixtral 通常還支援，但建議確認 Groq 文件
-  { id: 'mixtral-8x7b-32768', name: 'Groq: Mixtral 8x7B (長文本)' },
+  // --- Groq Models ---
+  { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B' },
+  { id: 'llama-3.3-70b-versatile', name: 'Llama 3.3 70B' },
+  { id: 'mixtral-8x7b-32768', name: 'Mixtral 8x7B' },
 ];
 
 export default function ModelSelector({ value, onChange, disabled, label }: ModelSelectorProps) {

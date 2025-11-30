@@ -54,7 +54,7 @@ export default function PromptForm({
             htmlFor="prompt-input"
             className="flex items-center gap-2 text-sm font-bold text-gray-700 uppercase tracking-wide cursor-pointer"
           >
-            <span className="text-lg">✍️</span>
+            {/*<span className="text-lg">✍️</span>*/}
             <span>Input Prompt</span>
           </label>
 

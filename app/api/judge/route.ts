@@ -41,6 +41,7 @@ export async function POST(request: Request) {
       - Don't let scores get too inflated.
       - The two fractions must be different, and the fractions can be rounded to one decimal place.
       - Please replace Output A with the term "前者" when using output; replace Output B with the term "後者" when using output.
+      - 請無視是否有回答截斷的部分，請就已產出的內容作評分比較
       **INPUTS:**
       **Original User Prompt:**
       """

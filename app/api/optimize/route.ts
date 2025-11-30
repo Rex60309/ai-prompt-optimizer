@@ -36,6 +36,7 @@ export async function POST(request: Request) {
       Do not use MARKDOWN to build the optimized prompt.
       Unless otherwise specified, use Traditional Chinese for the response.
       若原始的prompt為詢問教學的內容，請一次回答完所有內容
+      若回答過長會導致有截斷部分的話，請在一定程度上限制回覆字數
 
       Original Prompt: "${prompt}"
 
