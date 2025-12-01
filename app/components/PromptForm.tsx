@@ -54,7 +54,7 @@ export default function PromptForm({
             htmlFor="prompt-input"
             className="flex items-center gap-2 text-sm font-bold text-gray-700 uppercase tracking-wide cursor-pointer"
           >
-            {/*<span className="text-lg">✍️</span>*/}
+            <span className="text-lg">✍️</span>
             <span>Input Prompt</span>
           </label>
 
@@ -71,7 +71,7 @@ export default function PromptForm({
             onChange={(e) => setCurrentPrompt(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            placeholder="Describe your task here... e.g., 'Explain quantum computing to a 5-year-old'"
+            placeholder="Describe your task here..."
             disabled={isLoading}
           />
 
