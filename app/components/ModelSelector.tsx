@@ -17,7 +17,12 @@ const AVAILABLE_MODELS = [
   // --- Groq Models ---
   { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B' },
   { id: 'llama-3.3-70b-versatile', name: 'Llama 3.3 70B' },
-  { id: 'mixtral-8x7b-32768', name: 'Mixtral 8x7B' },
+
+  // --- Hugging Face Models ---
+  { id: 'Qwen/Qwen2.5-7B-Instruct', name: 'Qwen 2.5 7B ' },
+  // { id: 'microsoft/Phi-3.5-mini-instruct', name: 'Phi-3.5 Mini' }, // 微軟小模型
+  // { id: 'NousResearch/Hermes-3-Llama-3.1-8B', name: 'Hermes 3' },
+  // { id: 'HuggingFaceH4/zephyr-7b-beta', name: 'Zephyr 7B' },
 ];
 
 export default function ModelSelector({ value, onChange, disabled, label }: ModelSelectorProps) {

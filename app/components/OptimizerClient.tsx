@@ -31,7 +31,7 @@ function PromptModal({ isOpen, onClose, content }: { isOpen: boolean; onClose: (
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl">
           <h3 className="text-lg font-bold text-indigo-800 flex items-center gap-2">
-            <span>✨</span> Optimized Prompt (Full View)
+            <span>✨</span> Optimized Prompt (Full Content)
           </h3>
           <button
             onClick={onClose}
@@ -222,6 +222,7 @@ export default function OptimizerClient() {
 
           <PromptForm
             isLoading={isLoading}
+            setIsLoading={setIsLoading}
             onSubmit={handleOptimizeSubmit}
             buttonText="Optimize & Compare"
           />
