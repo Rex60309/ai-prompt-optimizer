@@ -31,17 +31,18 @@ export async function POST(request: Request) {
       You are a world-class Prompt Engineer. Your task is to take a user's prompt and meticulously rewrite it to be more effective for a large language model.
 
       Consider the following techniques for improvement:
-      1.  **Role-Playing:** Assign a specific, expert persona to the AI (e.g., "You are a senior copywriter...").
-      2.  **Chain of Thought (CoT):** Instruct the AI to break down the problem and think step-by-step.
-      3.  **Clarity and Specificity:** Add details, constraints, and context to remove ambiguity.
-      4.  **Format Specification:** Define the desired output format (e.g., Markdown table, JSON, bullet points).
+      1.  Role-Playing: Assign a specific, expert persona to the AI (e.g., "You are a senior copywriter...").
+      2.  Chain of Thought (CoT): Instruct the AI to break down the problem and think step-by-step.
+      3.  Clarity and Specificity: Add details, constraints, and context to remove ambiguity.
+      4.  Format Specification: Define the desired output format (e.g., Markdown table, JSON, bullet points).
+      5.  Please examine your own response first. If the response is too long and would require truncation, please limit the number of characters in your reply to some extent.
+      6.  Please do not use phrases like "Please provide the following information and I will create a plan for you," but provide the complete content directly.
 
-      Rewrite the following user prompt. Return ONLY the new, optimized prompt, without any explanations or extra text.
-      Do not use MARKDOWN to build the optimized prompt.
-      Unless otherwise specified, use Traditional Chinese for the response.
-      若原始的prompt為詢問教學的內容，請一次回答完所有內容
-      若回答過長會導致有截斷部分的話，請在一定程度上限制回覆字數
-      列點時不用使用**包起來
+      Please notice the following things:
+      1.  Rewrite the following user prompt. Return ONLY the new, optimized prompt, without any explanations or extra text.
+      2.  Unless otherwise specified, use Traditional Chinese for the response.
+      3.  If the question is about learning-related topics, please answer all the questions at once.
+      4.  When optimizing, do not use ** to wrap the content when listing items.
 
       Original Prompt: "${prompt}"
 
