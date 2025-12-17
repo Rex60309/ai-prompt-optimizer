@@ -8,8 +8,12 @@ import ModelSelector from './ModelSelector';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import {
+  Settings2, Sparkles, ArrowRight, Zap, CheckCircle2, Copy,
+  Maximize2, X, Gavel, BarChart3, Bot, FileText
+} from 'lucide-react';
 
-// 定義評分報告的 TypeScript 型別
+// --- TypeScript Interfaces ---
 interface JudgeCriterion {
   criterionName: string;
   scoreA: number;
@@ -21,55 +25,64 @@ interface JudgeResult {
   summary: string;
 }
 
-// --- 新增：彈出視窗元件 (Modal) ---
+// --- Component: Modal (Dark Theme) ---
 function PromptModal({ isOpen, onClose, content }: { isOpen: boolean; onClose: () => void; content: string }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-all">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl flex flex-col max-h-[85vh] animate-fade-in border border-gray-200">
-        {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl">
-          <h3 className="text-lg font-bold text-indigo-800 flex items-center gap-2">
-            <span>✨</span> Optimized Prompt (Full Content)
-          </h3>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-full p-2 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        {/* Backdrop */}
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onClick={onClose} />
 
-        {/* Modal Content */}
-        <div className="p-6 overflow-y-auto bg-gray-50 font-mono text-sm leading-relaxed text-indigo-900 whitespace-pre-wrap">
-          {content}
-        </div>
+        {/* Modal Card */}
+        <div className="relative bg-slate-900 rounded-2xl shadow-2xl shadow-black/50 w-full max-w-3xl flex flex-col max-h-[85vh] animate-in fade-in zoom-in-95 duration-200 border border-slate-700/50 overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-slate-700/50 bg-slate-800/30">
+            <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-indigo-400" />
+              Optimized Prompt Content
+            </h3>
+            <button onClick={onClose} className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-full transition-all">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
 
-        {/* Modal Footer */}
-        <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
-          <button
-            onClick={() => navigator.clipboard.writeText(content).then(() => alert('Copied!'))}
-            className="mr-3 px-4 py-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg font-medium transition-colors text-sm"
-          >
-            Copy Text
-          </button>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors text-sm"
-          >
-            Close
-          </button>
+          <div className="p-0 overflow-y-auto bg-slate-950/50">
+           <pre className="p-6 font-mono text-sm leading-relaxed text-slate-300 whitespace-pre-wrap selection:bg-indigo-500/30">
+             {content}
+           </pre>
+          </div>
+
+          <div className="px-6 py-4 border-t border-slate-700/50 bg-slate-900 rounded-b-2xl flex justify-end gap-3">
+            <button
+                onClick={() => navigator.clipboard.writeText(content).then(() => alert('Copied!'))}
+                className="flex items-center gap-2 px-4 py-2 text-slate-300 bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-slate-500 rounded-lg font-medium transition-all text-sm shadow-sm"
+            >
+              <Copy className="w-4 h-4" /> Copy
+            </button>
+            <button
+                onClick={onClose}
+                className="px-5 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-500 transition-all text-sm shadow-lg shadow-indigo-500/20"
+            >
+              Done
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+  );
+}
+
+// --- Component: Status Badge ---
+function StatusBadge({ stage }: { stage: string }) {
+  if (!stage) return null;
+  return (
+      <div className="fixed bottom-6 right-6 z-50 bg-slate-900/90 backdrop-blur border border-slate-700 text-slate-100 px-5 py-3 rounded-full shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-5">
+        <div className="w-2 h-2 bg-indigo-400 rounded-full animate-ping" />
+        <span className="font-medium text-sm tracking-wide">{stage}</span>
+      </div>
   );
 }
 
 export default function OptimizerClient() {
-  // --- 狀態管理 ---
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState('');
   const [originalPrompt, setOriginalPrompt] = useState('');
@@ -77,19 +90,12 @@ export default function OptimizerClient() {
   const [originalResult, setOriginalResult] = useState('');
   const [optimizedResult, setOptimizedResult] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
-  // --- 模型選擇狀態 ---
   const [optimizerModel, setOptimizerModel] = useState('gemini-2.5-flash');
   const [generationModel, setGenerationModel] = useState('gemini-2.5-flash');
-
-  // --- AI 評審狀態 ---
   const [isJudging, setIsJudging] = useState(false);
   const [judgeResult, setJudgeResult] = useState<JudgeResult | null>(null);
-
-  // --- Modal 狀態 (新增) ---
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // 通用 API 呼叫函式
   const callApi = async (endpoint: string, body: object) => {
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -113,7 +119,6 @@ export default function OptimizerClient() {
     setJudgeResult(null);
 
     try {
-      // 步驟 1: 優化 Prompt
       setLoadingStage(`Optimizing prompt using ${optimizerModel}...`);
       const optimizeData = await callApi('/api/optimize', {
         prompt: inputPrompt,
@@ -122,7 +127,6 @@ export default function OptimizerClient() {
       const newOptimizedPrompt = optimizeData.optimizedPrompt;
       setOptimizedPrompt(newOptimizedPrompt);
 
-      // 步驟 2: 生成內容
       setLoadingStage(`Generating responses using ${generationModel}...`);
       const [originalResponse, optimizedResponse] = await Promise.all([
         callApi('/api/generate', {
@@ -168,210 +172,245 @@ export default function OptimizerClient() {
   };
 
   return (
-    <>
-      {/* 整合 Modal 元件 */}
-      <PromptModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        content={optimizedPrompt}
-      />
+      <div className="w-full animate-in fade-in duration-500">
+        <PromptModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} content={optimizedPrompt} />
+        <StatusBadge stage={loadingStage} />
 
-      {isLoading && (
-        <div className="my-4 text-lg font-semibold text-purple-700 animate-pulse text-center">
-          {loadingStage}
-        </div>
-      )}
+        {/* --- 1. Settings Toolbar (Dark Glass) --- */}
+        <div className="sticky top-4 z-40 mx-auto max-w-5xl mb-8">
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 shadow-2xl shadow-black/20 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 transition-all">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-lg shadow-[0_0_15px_rgba(99,102,241,0.3)]">
+                <Settings2 className="w-5 h-5" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-bold text-slate-200 text-sm">Model Configuration</span>
+                <span className="text-xs text-slate-400">Adjust your AI parameters</span>
+              </div>
+            </div>
 
-      {/* --- 全域模型設定區塊 --- */}
-      <div className="w-full max-w-6xl mb-8 p-6 bg-white rounded-xl shadow-md border border-gray-200">
-        <h3 className="text-lg font-bold text-gray-700 mb-4 border-b pb-2">⚙️ Experiment Settings</h3>
-        <div className="flex flex-col md:flex-row gap-8 justify-around">
-
-          <div className="flex flex-col gap-2 w-full">
-             <label className="text-sm font-semibold text-indigo-600">
-              Optimizer Model
-             </label>
-             <ModelSelector
-               value={optimizerModel}
-               onChange={setOptimizerModel}
-               disabled={isLoading}
-             />
-             <p className="text-xs text-gray-500">此模型將用來優化使用者的 Prompt</p>
-          </div>
-
-          <div className="flex flex-col gap-2 w-full">
-             <label className="text-sm font-semibold text-green-600">
-              Generator Model
-             </label>
-             <ModelSelector
-               value={generationModel}
-               onChange={setGenerationModel}
-               disabled={isLoading}
-             />
-             <p className="text-xs text-gray-500">此模型將用來同時回答兩個 Prompt 以確保公平</p>
-          </div>
-
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-6xl items-stretch">
-
-        {/* --- 左半邊 (原始) --- */}
-        <div className="flex flex-col gap-6 p-6 md:p-8 rounded-xl shadow-lg bg-gray-50 border border-gray-200 h-full">
-          <h2 className="text-2xl font-bold text-gray-800 border-b pb-3 mb-3">Original Prompt</h2>
-
-          <PromptForm
-            isLoading={isLoading}
-            setIsLoading={setIsLoading}
-            onSubmit={handleOptimizeSubmit}
-            buttonText="Optimize & Compare"
-          />
-
-          <div className="mt-6 flex-1 flex flex-col">
-            <h3 className="text-xl font-bold text-gray-700 mb-3">AI Output (Original):</h3>
-            <div className={`p-4 bg-white border border-gray-300 rounded-lg shadow-sm min-h-[250px] h-full transition-all ${originalResult ? '' : 'flex items-center justify-center'}`}>
-              {originalResult ? (
-                <article className="prose prose-sm max-w-none text-gray-800">
-                  <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-                    {originalResult}
-                  </ReactMarkdown>
-                </article>
-              ) : (
-                <p className="text-gray-400 italic">
-                    {isLoading ? 'Generating response...' : 'Response for \'input prompt\' will shown here...'}
-                </p>
-              )}
+            <div className="flex flex-1 flex-col md:flex-row gap-4 w-full md:w-auto justify-end items-center">
+              <div className="flex items-center gap-2 w-full md:w-auto">
+                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Optimizer</label>
+                <div className="flex-1 md:flex-none min-w-[200px]">
+                  {/* 假設 ModelSelector 支援 className 或 style，若無，您可能需要修改 ModelSelector 內部樣式以適配深色模式 */}
+                  <ModelSelector value={optimizerModel} onChange={setOptimizerModel} disabled={isLoading} />
+                </div>
+              </div>
+              <div className="hidden md:block h-8 w-px bg-slate-700/50"></div>
+              <div className="flex items-center gap-2 w-full md:w-auto">
+                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Generator</label>
+                <div className="flex-1 md:flex-none min-w-[200px]">
+                  <ModelSelector value={generationModel} onChange={setGenerationModel} disabled={isLoading} />
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* --- 右半邊 (優化) --- */}
-        <div className="flex flex-col gap-6 p-6 md:p-8 rounded-xl shadow-lg bg-indigo-50 border border-indigo-200 h-full">
-          <h2 className="text-2xl font-bold text-indigo-800 border-b pb-3 mb-3">Optimized Prompt</h2>
+        {/* --- 2. Main Workspace (Split View) --- */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start mb-12">
 
-          {/* === Optimized Prompt Box === */}
-          <div className="relative flex flex-col w-full bg-white rounded-xl border border-gray-200 shadow-sm h-full max-h-[380px] transition-all duration-300 hover:border-indigo-300">
+          {/* === Left Column: Original Stream === */}
+          <div className="space-y-6">
+            {/* Card A: Input */}
+            <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 shadow-lg p-6 relative overflow-hidden group hover:border-slate-600 transition-all">
+              <div className="absolute top-0 left-0 w-1 h-full bg-slate-600 group-hover:bg-slate-500 transition-colors"></div>
+              <h2 className="text-xl font-bold text-slate-200 mb-4 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-slate-400" />
+                Original Prompt
+              </h2>
+              <PromptForm
+                  isLoading={isLoading}
+                  setIsLoading={setIsLoading}
+                  onSubmit={handleOptimizeSubmit}
+                  buttonText="Start Optimization"
+              />
+            </div>
 
-            {/* Header with View Button */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50/50 rounded-t-xl shrink-0">
-              <label className="flex items-center gap-2 text-sm font-bold text-indigo-700 uppercase tracking-wide">
-                <span className="text-lg">✨</span>
-                <span>Optimized Prompt</span>
-              </label>
+            {/* Arrow Indicator */}
+            {originalResult && (
+                <div className="flex justify-center text-slate-600/50">
+                  <ArrowRight className="w-6 h-6 rotate-90" />
+                </div>
+            )}
 
-              <div className="flex items-center gap-2">
+            {/* Card B: Original Output */}
+            <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 min-h-[300px] flex flex-col shadow-inner bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-800/20 to-transparent">
+              <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <Bot className="w-4 h-4" /> AI Output (Baseline)
+              </h3>
+              {/* prose-invert 是關鍵，讓 markdown 在深色模式下變為淺色字 */}
+              <div className="flex-1 bg-slate-950/50 rounded-xl border border-slate-700/50 p-5 shadow-sm prose prose-invert prose-sm max-w-none text-slate-300">
+                {originalResult ? (
+                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{originalResult}</ReactMarkdown>
+                ) : (
+                    <div className="h-full flex items-center justify-center text-slate-600 italic text-sm">
+                      Waiting for generation...
+                    </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+
+          {/* === Right Column: Optimized Stream === */}
+          <div className="space-y-6">
+            {/* Card C: Optimized Prompt Display */}
+            <div className="bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-indigo-500/30 shadow-lg shadow-indigo-500/5 p-6 relative overflow-hidden group hover:border-indigo-500/50 transition-all">
+              <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
+
+              <div className="flex justify-between items-start mb-4">
+                <h2 className="text-xl font-bold text-indigo-100 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-indigo-400 animate-pulse" />
+                  Optimized Prompt
+                </h2>
                 {optimizedPrompt && (
-                  <>
-                    <span className="text-xs text-indigo-400 font-mono hidden sm:inline-block">
-                      {optimizedPrompt.length} chars
-                    </span>
-                    {/* 檢視完整內容按鈕 */}
-                    <button
-                      type="button"
-                      onClick={() => setIsModalOpen(true)}
-                      className="flex items-center gap-1 px-3 py-1 text-xs font-bold text-white bg-indigo-500 rounded-full hover:bg-indigo-600 transition-colors shadow-sm"
-                      title="View Full Content"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                      View
+                    <button onClick={() => setIsModalOpen(true)} className="text-xs flex items-center gap-1 px-3 py-1.5 bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 rounded-full hover:bg-indigo-500/20 transition-colors font-medium">
+                      <Maximize2 className="w-3 h-3" /> Expand
                     </button>
-                  </>
+                )}
+              </div>
+
+              <div className="relative">
+                <textarea
+                    readOnly
+                    className="w-full h-[180px] p-4 bg-slate-950/80 border border-indigo-900/50 rounded-xl text-indigo-100 font-mono text-sm leading-relaxed resize-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all outline-none placeholder:text-slate-600"
+                    value={optimizedPrompt}
+                    placeholder="Optimized prompt will appear here..."
+                />
+                {!optimizedPrompt && isLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-slate-900/60 backdrop-blur-[1px] rounded-xl">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent"></div>
+                        <span className="animate-pulse text-indigo-400 font-medium text-sm">Optimizing...</span>
+                      </div>
+                    </div>
                 )}
               </div>
             </div>
 
-            {/* Content (Textarea) */}
-            <div className="relative flex-1 min-h-[160px]">
-              <textarea
-                readOnly
-                className="w-full h-full p-5 bg-transparent border-none focus:ring-0 text-indigo-900 font-mono text-sm leading-relaxed resize-none placeholder:text-indigo-300"
-                value={optimizedPrompt}
-                placeholder={isLoading ? 'Optimizing prompt...' : 'Your optimized prompt will shown here...'}
-              />
-            </div>
-
-            {/* Footer */}
-            <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-100 rounded-b-xl shrink-0">
-              <div className="text-xs text-indigo-400 italic">
-                {isLoading ? 'AI is working magic...' : 'AI Generated Content'}
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 flex-1 flex flex-col">
-            <h3 className="text-xl font-bold text-indigo-700 mb-3">AI Output (Optimized):</h3>
-            <div className={`p-4 bg-white border border-indigo-300 rounded-lg shadow-sm min-h-[250px] h-full transition-all ${optimizedResult ? '' : 'flex items-center justify-center'}`}>
-              {optimizedResult ? (
-                <article className="prose prose-sm max-w-none text-gray-800">
-                  <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-                    {optimizedResult}
-                  </ReactMarkdown>
-                </article>
-              ) : (
-                 <p className="text-indigo-300 italic">
-                    {isLoading ? 'Generating response...' : 'Response for \'optimized prompt\' will shown here...'}
-                 </p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* --- 評分按鈕和結果顯示 --- */}
-      <div className="w-full max-w-6xl mt-8 flex flex-col items-center">
-        {!isLoading && originalResult && optimizedResult && !judgeResult && (
-          <button
-            onClick={handleJudge}
-            disabled={isJudging}
-            className="px-8 py-4 bg-purple-600 text-white font-bold text-lg rounded-lg shadow-lg hover:bg-purple-700 transition-transform transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed animate-pulse"
-          >
-            {isJudging ? '評分中...' : '🤖 請求 AI 評審評分'}
-          </button>
-        )}
-
-        {isJudging && <div className="mt-6 text-lg font-semibold text-purple-700">評分中，請稍候...</div>}
-
-        {judgeResult && !isJudging && (
-          <div className="w-full mt-6 p-8 bg-white rounded-2xl shadow-2xl border border-gray-200 animate-fade-in">
-            <h2 className="text-3xl font-extrabold text-center mb-6 text-gray-800">評分報告 📋</h2>
-
-            <div className="space-y-4 mb-8">
-              {judgeResult.criteria.map((c, index) => (
-                <div key={index} className="p-4 bg-gray-50 rounded-lg border border-gray-200 transition-all hover:shadow-md">
-                  <h4 className="text-lg font-bold text-gray-700">{c.criterionName}</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2 items-center">
-                    <div className={`p-3 rounded-md text-center ${c.scoreA >= c.scoreB ? 'bg-blue-100 border-2 border-blue-300' : 'bg-gray-100'}`}>
-                      <span className="font-semibold text-sm text-gray-600">原始輸出</span><br/>
-                      <span className="text-2xl font-bold text-blue-600">{c.scoreA} / 10</span>
-                    </div>
-                    <div className={`p-3 rounded-md text-center ${c.scoreB > c.scoreA ? 'bg-indigo-100 border-2 border-indigo-300' : 'bg-gray-100'}`}>
-                      <span className="font-semibold text-sm text-gray-600">優化輸出</span><br/>
-                      <span className="text-2xl font-bold text-indigo-600">{c.scoreB} / 10</span>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-600 mt-3 italic">評語：{c.justification}</p>
+            {/* Arrow Indicator */}
+            {optimizedResult && (
+                <div className="flex justify-center text-indigo-900/50">
+                  <ArrowRight className="w-6 h-6 rotate-90" />
                 </div>
-              ))}
-            </div>
+            )}
 
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <h3 className="text-2xl font-bold text-gray-800 mb-3">🏆 總結分析</h3>
-              <div className="p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg">
-                <p className="text-base text-gray-800 leading-relaxed whitespace-pre-wrap">{judgeResult.summary}</p>
+            {/* Card D: Optimized Output */}
+            <div className="bg-slate-900 rounded-2xl border border-indigo-500/20 p-6 min-h-[300px] flex flex-col shadow-inner bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/20 to-transparent">
+              <h3 className="text-sm font-bold text-indigo-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <Zap className="w-4 h-4" /> AI Output (Optimized)
+              </h3>
+              <div className="flex-1 bg-slate-950/50 rounded-xl border border-indigo-500/20 p-5 shadow-sm prose prose-invert prose-sm max-w-none text-slate-300">
+                {optimizedResult ? (
+                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{optimizedResult}</ReactMarkdown>
+                ) : (
+                    <div className="h-full flex items-center justify-center text-indigo-400/40 italic text-sm">
+                      Waiting for generation...
+                    </div>
+                )}
               </div>
             </div>
           </div>
-        )}
-      </div>
-
-      {errorMessage && (
-        <div className="mt-8 w-full max-w-6xl p-4 bg-red-100 text-red-700 border border-red-300 rounded-lg text-center">
-          <p>錯誤: {errorMessage}</p>
         </div>
-      )}
-    </>
+
+        {/* --- 3. Judgment Section (Dark Dashboard) --- */}
+        <div className="mb-20">
+          <div className="flex justify-center mb-8">
+            {!isLoading && originalResult && optimizedResult && !judgeResult && (
+                <button
+                    onClick={handleJudge}
+                    disabled={isJudging}
+                    className="group relative px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-lg rounded-full shadow-lg shadow-indigo-900/50 hover:shadow-indigo-600/50 hover:-translate-y-1 transition-all disabled:bg-slate-700 disabled:from-slate-700 disabled:to-slate-700 disabled:cursor-not-allowed disabled:transform-none overflow-hidden"
+                >
+               <span className="relative z-10 flex items-center gap-2">
+                 {isJudging ? <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white" /> : <Gavel className="w-5 h-5" />}
+                 {isJudging ? 'Analyzing Results...' : 'Run AI Evaluation'}
+               </span>
+                </button>
+            )}
+          </div>
+
+          {judgeResult && !isJudging && (
+              <div className="bg-slate-900/80 backdrop-blur-md rounded-3xl shadow-2xl border border-slate-700 overflow-hidden animate-in fade-in slide-in-from-bottom-10 duration-700">
+                {/* Report Header */}
+                <div className="bg-gradient-to-r from-slate-950 to-indigo-950 text-white p-8 md:p-10 text-center border-b border-indigo-900/30">
+                  <h2 className="text-3xl font-bold flex items-center justify-center gap-3 mb-2 text-indigo-100">
+                    <BarChart3 className="w-8 h-8 text-indigo-400" />
+                    Evaluation Report
+                  </h2>
+                  <p className="text-indigo-200/60">Comparative Analysis: Baseline vs Optimized</p>
+                </div>
+
+                <div className="p-8 md:p-10">
+                  {/* Summary Box */}
+                  <div className="mb-10 p-6 bg-indigo-950/30 rounded-2xl border border-indigo-500/30">
+                    <h3 className="text-indigo-300 font-bold mb-3 flex items-center gap-2">
+                      <Sparkles className="w-5 h-5" /> Executive Summary
+                    </h3>
+                    <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">{judgeResult.summary}</p>
+                  </div>
+
+                  {/* Criteria Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {judgeResult.criteria.map((c, index) => {
+                      const winA = c.scoreA > c.scoreB;
+                      const winB = c.scoreB > c.scoreA;
+                      const tie = c.scoreA === c.scoreB;
+
+                      return (
+                          <div key={index} className="flex flex-col bg-slate-950 rounded-xl border border-slate-800 hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/10 transition-all p-5">
+                            <div className="mb-4">
+                              <h4 className="font-bold text-slate-200 text-lg">{c.criterionName}</h4>
+                            </div>
+
+                            {/* Score Bars */}
+                            <div className="space-y-4 mb-4 flex-1">
+                              {/* A Score */}
+                              <div>
+                                <div className="flex justify-between text-xs mb-1">
+                                  <span className="font-semibold text-slate-500">Original</span>
+                                  <span className="font-bold text-slate-400">{c.scoreA}/10</span>
+                                </div>
+                                <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                                  <div className={`h-full rounded-full ${winA ? 'bg-slate-400' : 'bg-slate-600'}`} style={{ width: `${c.scoreA * 10}%` }}></div>
+                                </div>
+                              </div>
+
+                              {/* B Score */}
+                              <div>
+                                <div className="flex justify-between text-xs mb-1">
+                                  <span className="font-semibold text-indigo-400">Optimized</span>
+                                  <span className="font-bold text-indigo-300">{c.scoreB}/10</span>
+                                </div>
+                                <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                                  <div className={`h-full rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)] ${winB ? 'bg-indigo-500' : tie ? 'bg-slate-500' : 'bg-indigo-900'}`} style={{ width: `${c.scoreB * 10}%` }}></div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <p className="text-xs text-slate-500 italic mt-auto border-t border-slate-800 pt-3 leading-relaxed">
+                              "{c.justification}"
+                            </p>
+                          </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+          )}
+        </div>
+
+        {/* Error Toast */}
+        {errorMessage && (
+            <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-red-950/90 text-red-200 px-6 py-4 rounded-xl border border-red-500/50 shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-5 z-50 backdrop-blur-md">
+              <X className="w-5 h-5 text-red-400" />
+              <span className="font-medium">{errorMessage}</span>
+              <button onClick={() => setErrorMessage('')} className="ml-2 hover:bg-red-900/50 rounded-full p-1"><X className="w-4 h-4" /></button>
+            </div>
+        )}
+
+      </div>
   );
 }
