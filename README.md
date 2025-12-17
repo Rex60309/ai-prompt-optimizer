@@ -34,3 +34,13 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+---
+## DataSet
+
+- MT-Bench (最佳推薦 🌟)
+  - [HuggingFace - LMSYS/mt_bench_human_judgments](https://huggingface.co/datasets/lmsys/mt_bench_human_judgments) 
+  - 只需取用其中的 question 欄位
+
+- Databricks-dolly-15k
+  - [HuggingFace - databricks/databricks-dolly-15k](https://huggingface.co/datasets/databricks/databricks-dolly-15k)

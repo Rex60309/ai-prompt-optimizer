@@ -21,8 +21,8 @@ const DELAY_MS = 15000;
 
 const CONFIG = {
   optimizerModel: 'gemini-2.5-flash',
-  generatorModel: 'gemini-2.5-flash',
-  judgeModel: 'gemini-1.5-pro',
+  generatorModel: 'gemini-2.5-flash-lite',
+  judgeModel: 'gemini-2.5-pro',
 };
 
 // --- 評分面向對照表 (Key Mapping) ---

@@ -43,6 +43,7 @@ export async function POST(request: Request) {
       - Please replace Output A with the term "前者" when using output; replace Output B with the term "後者" when using output.
       - 請無視是否有回答截斷的部分，請就已產出的內容作評分比較
       - 第一行用較大的字體且粗體先寫出是原始prompt還是優化後的prompt的輸出比較好
+      - When evaluating, do not favor outputs solely because they are longer. Consider conciseness and relevance as part of quality.
 
       **INPUTS:**
       **Original User Prompt:**

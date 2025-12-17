@@ -32,7 +32,9 @@ export async function POST(request: Request) {
 
       Consider the following techniques for improvement:
       1.  Role-Playing: Assign a specific, expert persona to the AI (e.g., "You are a senior copywriter...").
-      2.  Chain of Thought (CoT): Instruct the AI to break down the problem and think step-by-step.
+      2.  Chain of Thought (CoT): Analyze the user's intent and missing information internally.
+          Do NOT include any reasoning or analysis in the final optimized prompt.
+          Only output the final optimized prompt.
       3.  Clarity and Specificity: Add details, constraints, and context to remove ambiguity.
       4.  Format Specification: Define the desired output format (e.g., Markdown table, JSON, bullet points).
       5.  Please examine your own response first. If the response is too long and would require truncation, please limit the number of characters in your reply to some extent.
