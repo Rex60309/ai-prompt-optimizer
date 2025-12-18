@@ -2,12 +2,16 @@
 
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import Groq from 'groq-sdk'; // 引入 Groq SDK
+import Groq from 'groq-sdk';
+import { HfInference } from '@huggingface/inference';
 
 // 初始化 Groq 客戶端 (放在函式外避免重複初始化)
 const groqClient = new Groq({
   apiKey: process.env.GROQ_API_KEY || '', // 即使沒設定，這裡先給空字串，後面再檢查
 });
+
+// 初始化 HF
+const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
 
 export async function POST(request: Request) {
   try {
@@ -23,7 +27,7 @@ export async function POST(request: Request) {
 
     // --- 分流邏輯：根據模型名稱決定使用哪家供應商 ---
 
-    // 1. 處理 Google Gemini 系列
+    // Gemini
     if (targetModel.includes('gemini')) {
       const googleApiKey = process.env.GOOGLE_API_KEY;
       if (!googleApiKey) {
@@ -39,7 +43,7 @@ export async function POST(request: Request) {
       generatedContent = result.response.text();
     }
 
-    // 2. 處理 Groq 系列 (Llama, Mixtral)
+    // Groq
     else if (targetModel.includes('llama') || targetModel.includes('mixtral')) {
       const groqApiKey = process.env.GROQ_API_KEY;
       if (!groqApiKey) {
@@ -62,7 +66,20 @@ export async function POST(request: Request) {
       generatedContent = chatCompletion.choices[0]?.message?.content || "";
     }
 
-    // 3. 未知模型
+    // Hugging Face
+    else if (targetModel.includes('/')) {
+       if (!process.env.HUGGINGFACE_API_KEY) throw new Error("Missing HF API Key");
+
+       const result = await hf.chatCompletion({
+          model: targetModel,
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: 2048,
+          temperature: 0.7,
+       });
+       generatedContent = result.choices[0].message.content || "";
+    }
+
+    // Error: Unknown
     else {
       throw new Error(`Unsupported model selected: ${targetModel}`);
     }
