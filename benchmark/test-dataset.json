@@ -8,10 +8,5 @@
     "id": "travel_01",
     "category": "Travel",
     "prompt": "幫我規劃日本東京7天6夜的自由行行程，我喜歡逛街和美食。"
-  },
-  {
-    "id": "code_01",
-    "category": "Coding",
-    "prompt": "寫一個 Python 函式來計算費式數列。"
   }
 ]

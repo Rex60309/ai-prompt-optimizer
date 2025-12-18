@@ -1,14 +1,19 @@
 // app/api/judge/route.ts
 
+// app/api/judge/route.ts
+
 import { NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { HfInference } from '@huggingface/inference';
 
 export async function POST(request: Request) {
-  const apiKey = process.env.GOOGLE_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: "Server configuration error: Google API key is not set." }, { status: 500 });
+  // 1. 改用 Hugging Face API Key
+  const hfApiKey = process.env.HUGGINGFACE_API_KEY;
+  if (!hfApiKey) {
+    return NextResponse.json({ error: "Server configuration error: HUGGINGFACE_API_KEY is not set." }, { status: 500 });
   }
-  const genAI = new GoogleGenerativeAI(apiKey);
+
+  // 初始化 HF Client
+  const hf = new HfInference(hfApiKey);
 
   try {
     const { originalPrompt, outputA, outputB } = await request.json();
@@ -17,9 +22,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields for judgment.' }, { status: 400 });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    // 2. 指定使用 Qwen 2.5 72B 模型
+    const JUDGE_MODEL = 'Qwen/Qwen2.5-72B-Instruct';
 
-    // Meta-Prompt 保持不變
+    // Meta-Prompt (保持原樣，完全未更動)
     const judgeMetaPrompt = `
       You are a meticulous and impartial AI Output Evaluator. Your task is to analyze and compare two outputs (Output A and Output B).
       Your evaluation must be based on the following five criteria, scoring each from 1 (worst) to 10 (best).
@@ -40,12 +46,13 @@ export async function POST(request: Request) {
       - Use "traditional chinese" to response.
       - Use Markdown to demonstrate.
       - Don't let scores get too inflated.
-      - The two fractions must be different, and the fractions can be rounded to one decimal place.
+      - 兩者的分數要不相同，到小數點後一位
       - Please replace Output A with the term "前者" when using output; replace Output B with the term "後者" when using output.
       - 評語不要有Output A或Output B的詞彙出現
       - 請無視是否有回答截斷的部分，請就已產出的內容作評分比較
-      - 第一行用較大的字體且粗體先寫出是(前者:原始prompt)還是(後者:優化prompt)的輸出比較好
+      - 第一行用較大的字體且粗體先寫出是 **前者:原始prompt的輸出比較好!** 還是 **後者:優化prompt的輸出比較好!** 並且記得換行
       - When evaluating, do not favor outputs solely because they are longer. Consider conciseness and relevance as part of quality.
+      - Do not output markdown code blocks. Output raw JSON only.
 
       **INPUTS:**
       **Original User Prompt:**
@@ -63,10 +70,19 @@ export async function POST(request: Request) {
       **JSON OUTPUT:**
     `;
 
-    const result = await model.generateContent(judgeMetaPrompt);
-    const textResponse = result.response.text();
+    // 3. 呼叫 Hugging Face Chat Completion
+    const response = await hf.chatCompletion({
+      model: JUDGE_MODEL,
+      messages: [
+        { role: "user", content: judgeMetaPrompt }
+      ],
+      max_tokens: 4096, // 給予足夠的空間產生完整的 JSON 報告
+      temperature: 0.5, // 降低溫度以確保評分客觀穩定
+    });
 
-    // --- (修改) 強化 JSON 解析 ---
+    const textResponse = response.choices[0].message.content || "";
+
+    // --- JSON 解析邏輯 (保持不變) ---
     try {
       // 尋找被 `{` 和 `}` 包起來的第一個區塊
       const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
