@@ -38,11 +38,13 @@ export async function POST(request: Request) {
       - The "summary" key should contain a concise overall analysis, comparing the two outputs and declaring which one is superior and why.
       Please note the following:
       - Use "traditional chinese" to response.
+      - Use Markdown to demonstrate.
       - Don't let scores get too inflated.
       - The two fractions must be different, and the fractions can be rounded to one decimal place.
       - Please replace Output A with the term "前者" when using output; replace Output B with the term "後者" when using output.
+      - 評語不要有Output A或Output B的詞彙出現
       - 請無視是否有回答截斷的部分，請就已產出的內容作評分比較
-      - 第一行用較大的字體且粗體先寫出是原始prompt還是優化後的prompt的輸出比較好
+      - 第一行用較大的字體且粗體先寫出是(前者:原始prompt)還是(後者:優化prompt)的輸出比較好
       - When evaluating, do not favor outputs solely because they are longer. Consider conciseness and relevance as part of quality.
 
       **INPUTS:**
