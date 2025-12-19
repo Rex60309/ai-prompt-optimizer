@@ -26,7 +26,7 @@ interface ModelGroup {
 // 模型列表設定 (Updated with Trending Qwen Models)
 const MODEL_GROUPS: ModelGroup[] = [
   {
-    groupName: 'DeepSeek (Reasoning)',
+    groupName: 'DeepSeek',
     items: [
       {
         id: 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B',
@@ -41,7 +41,7 @@ const MODEL_GROUPS: ModelGroup[] = [
     ]
   },
   {
-    groupName: 'Qwen Series (Alibaba)',
+    groupName: 'Qwen Series',
     items: [
       {
         id: 'Qwen/Qwen2.5-72B-Instruct',
@@ -82,6 +82,21 @@ const MODEL_GROUPS: ModelGroup[] = [
         id: 'llama-3.3-70b-versatile',
         name: 'Llama 3.3 70B',
         description: 'Balanced performance',
+      },
+    ]
+  },
+  {
+    groupName: 'OpenAI',
+    items: [
+      {
+        id: 'gpt-5.2',
+        name: 'GPT 5.2',
+        description: 'Smart',
+      },
+      {
+        id: 'gpt-5-mini',
+        name: 'GPT 5 mini',
+        description: 'Faster, cost-efficient',
       },
     ]
   },

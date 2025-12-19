@@ -1,7 +1,7 @@
 // app/api/judge/route.ts
 
 import { NextResponse } from 'next/server';
-import { HfInference } from '@huggingface/inference';
+import OpenAI from 'openai'; // 修改導入：使用 OpenAI SDK
 
 // --- 輔助函式：清洗 JSON 字串 ---
 function sanitizeJsonString(str: string): string {
@@ -42,12 +42,16 @@ function swapTerminology(text: string): string {
 }
 
 export async function POST(request: Request) {
-  const hfApiKey = process.env.HUGGINGFACE_API_KEY;
-  if (!hfApiKey) {
-    return NextResponse.json({ error: "Server configuration error: HUGGINGFACE_API_KEY is not set." }, { status: 500 });
+  // 修改：檢查 OPENAI_API_KEY
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json({ error: "Server configuration error: OPENAI_API_KEY is not set." }, { status: 500 });
   }
 
-  const hf = new HfInference(hfApiKey);
+  // 修改：初始化 OpenAI 客戶端
+  const openai = new OpenAI({
+    apiKey: apiKey,
+  });
 
   try {
     const { originalPrompt, outputA, outputB } = await request.json();
@@ -56,7 +60,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields for judgment.' }, { status: 400 });
     }
 
-    const JUDGE_MODEL = 'Qwen/Qwen2.5-72B-Instruct';
+    // 修改：設定模型為 GPT-5
+    const JUDGE_MODEL = 'gpt-5';
 
     // --- Step 1: 位置偏差處理 (Blind Test) ---
     const isSwapped = Math.random() > 0.5;
@@ -112,20 +117,22 @@ export async function POST(request: Request) {
       **JSON OUTPUT:**
     `;
 
-    const response = await hf.chatCompletion({
+    // 修改：使用 OpenAI 的 chat completion 方法
+    const response = await openai.chat.completions.create({
       model: JUDGE_MODEL,
       messages: [
         { role: "user", content: judgeMetaPrompt }
       ],
-      max_tokens: 4096,
-      temperature: 0.5,
+      max_completion_tokens: 2500,
     });
 
+    // 修改：OpenAI 回傳結構略有不同 (雖然 content 位置通常一樣，但型別定義來自 OpenAI SDK)
     const textResponse = response.choices[0].message.content || "";
 
     // --- JSON 解析 ---
     let judgeResult;
     try {
+      // 有時候 GPT 會包裹 ```json ... ```，這裡做個簡單處理
       const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
         throw new Error("No valid JSON object found in AI response.");
@@ -157,7 +164,7 @@ export async function POST(request: Request) {
     }
 
     // --- Step 3: 美化標籤 (無論是否交換，最後統一執行) ---
-    // 這一步確保無論 isSwapped 是 true 還是 false，"前者:" 都會變成 "前者(原始prompt)的"
+    // 這一步確保無論 isSwapped 是 true 還是 false，"前者" 都會變成 "前者(原始prompt)的"
     if (judgeResult.summary) {
       judgeResult.summary = judgeResult.summary
           .replace(/前者[:：]/, "前者(原始prompt)的") // 支援半形或全形冒號

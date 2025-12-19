@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import Groq from 'groq-sdk';
 import { HfInference } from '@huggingface/inference';
+import OpenAI from 'openai'; // 1. 新增 OpenAI 導入
 
 // 初始化客戶端
 const groqClient = new Groq({ apiKey: process.env.GROQ_API_KEY || '' });
@@ -105,7 +106,7 @@ const getStrategyInstruction = (strategy: string): string => {
       Unless length is specified, the minimum word count can be set at 500 words or more.
       
       ### 3. [Step-by-Step Reasoning Plan]
-      Explicitly instruct the model to follow a logical process. 
+      Explicitly instructs the model to follow a logical process. 
       *Critical*: You must include a phrase like "Before answering, think step-by-step..." or "Analyze X, then Y, then Z...".
 
       ### 4. [Output Style & Format]
@@ -118,7 +119,7 @@ const getStrategyInstruction = (strategy: string): string => {
 
 export async function POST(request: Request) {
   try {
-    const { prompt, model, strategy = 'zero-shot' } = await request.json();
+    const { prompt, model, strategy = 'role-play' } = await request.json();
 
     if (!prompt) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
@@ -151,8 +152,8 @@ export async function POST(request: Request) {
       const result = await aiModel.generateContent(metaPrompt);
       optimizedPrompt = result.response.text();
     }
-        // --- B. Groq (Llama, Mixtral) ---
-    // 注意：這裡只攔截 Llama 和 Mixtral，避免 DeepSeek/Qwen 被錯誤路由
+
+    // --- B. Groq (Llama, Mixtral) ---
     else if (targetModel.includes('llama') || targetModel.includes('mixtral')) {
       const groqApiKey = process.env.GROQ_API_KEY;
       if (!groqApiKey) throw new Error("Server config error: GROQ_API_KEY is missing.");
@@ -164,12 +165,36 @@ export async function POST(request: Request) {
       });
       optimizedPrompt = chatCompletion.choices[0]?.message?.content || "";
     }
-        // --- C. Hugging Face (DeepSeek, Qwen, Mistral, Gemma) ---
-    // 只要有 "/" 的模型 ID，且不是 Llama (Groq)，都交給 Hugging Face
+
+    // --- C. OpenAI (GPT-5.2, GPT-5-mini, etc.) ---
+    // 新增邏輯：捕捉所有以 'gpt-' 開頭的模型
+    else if (targetModel.toLowerCase().startsWith('gpt-')) {
+      const openaiApiKey = process.env.OPENAI_API_KEY;
+      if (!openaiApiKey) throw new Error("Server config error: OPENAI_API_KEY is missing.");
+
+      const openai = new OpenAI({
+        apiKey: openaiApiKey,
+      });
+
+      // [FIX] 針對 mini 模型 (通常是 Reasoning 模型) 強制設定 temperature 為 1
+      // 許多新模型不支援非 1 的 temperature
+      const isReasoningModel = targetModel.includes('mini') || targetModel.includes('o1');
+
+      const completion = await openai.chat.completions.create({
+        messages: [{ role: "user", content: metaPrompt }],
+        model: targetModel,
+        // 如果是 mini 模型，設為 1；否則維持 0.7
+        temperature: isReasoningModel ? 1 : 0.7,
+      });
+
+      optimizedPrompt = completion.choices[0].message.content || "";
+    }
+
+        // --- D. Hugging Face (DeepSeek, Qwen, Mistral, Gemma) ---
+    // 只要有 "/" 的模型 ID，都交給 Hugging Face
     else if (targetModel.includes('/')) {
       if (!process.env.HUGGINGFACE_API_KEY) throw new Error("Missing HF API Key");
 
-      // 大多數現代 Instruct 模型 (包含 DeepSeek R1 Distill, Qwen 2.5) 都支援 chatCompletion
       const result = await hf.chatCompletion({
         model: targetModel,
         messages: [{ role: "user", content: metaPrompt }],
@@ -179,14 +204,13 @@ export async function POST(request: Request) {
 
       optimizedPrompt = result.choices[0].message.content || "";
 
-      // [特殊處理] DeepSeek R1 系列
-      // 這些模型通常會輸出 <think>...</think>，我們需要將其過濾掉，只保留優化後的結果
+      // [特殊處理] DeepSeek R1 系列過濾 <think> 標籤
       if (targetModel.toLowerCase().includes('deepseek')) {
-        // 移除 <think> 標籤及其內容，並修剪空白
         optimizedPrompt = optimizedPrompt.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
       }
     }
-    // --- D. Fallback ---
+
+    // --- E. Fallback ---
     else {
       console.warn(`Unknown model ${targetModel}, falling back to Gemini`);
       const googleApiKey = process.env.GOOGLE_API_KEY!;

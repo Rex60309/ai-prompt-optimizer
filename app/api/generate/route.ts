@@ -1,11 +1,10 @@
 // app/api/generate/route.ts
 
-// app/api/generate/route.ts
-
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import Groq from 'groq-sdk';
 import { HfInference } from '@huggingface/inference';
+import OpenAI from 'openai'; // 1. 新增 OpenAI 導入
 
 // 初始化 Groq 客戶端
 const groqClient = new Groq({
@@ -43,8 +42,7 @@ export async function POST(request: Request) {
       generatedContent = result.response.text();
     }
 
-        // B. Groq (Llama, Mixtral)
-    // 這裡只攔截 Llama 和 Mixtral，避免 DeepSeek/Qwen 被錯誤路由到 Groq (如果 Groq 不支援該 ID)
+    // B. Groq (Llama, Mixtral)
     else if (targetModel.includes('llama') || targetModel.includes('mixtral')) {
       const groqApiKey = process.env.GROQ_API_KEY;
       if (!groqApiKey) {
@@ -62,12 +60,35 @@ export async function POST(request: Request) {
       generatedContent = chatCompletion.choices[0]?.message?.content || "";
     }
 
-        // C. Hugging Face (DeepSeek, Qwen, Mistral, Gemma 等)
-    // 只要有 "/" 的模型 ID，且不是 Llama (Groq)，都交給 Hugging Face
+    // C. OpenAI (GPT-5.2, GPT-5-mini, GPT-4.1 etc.)
+    // 新增邏輯：捕捉所有以 'gpt-' 開頭的模型
+    else if (targetModel.toLowerCase().startsWith('gpt-')) {
+      const openaiApiKey = process.env.OPENAI_API_KEY;
+      if (!openaiApiKey) throw new Error("Server config error: OPENAI_API_KEY is missing.");
+
+      const openai = new OpenAI({
+        apiKey: openaiApiKey,
+      });
+
+      // [FIX] 針對 mini 模型 (通常是 Reasoning 模型) 強制設定 temperature 為 1
+      // 許多新模型不支援非 1 的 temperature
+      const isReasoningModel = targetModel.includes('mini') || targetModel.includes('o1');
+
+      const completion = await openai.chat.completions.create({
+        messages: [{ role: "user", content: prompt }],
+        model: targetModel,
+        // 如果是 mini 模型，設為 1；否則維持 0.7
+        temperature: isReasoningModel ? 1 : 0.7,
+      });
+
+      generatedContent = completion.choices[0].message.content || "";
+    }
+
+        // D. Hugging Face (DeepSeek, Qwen, Mistral, Gemma 等)
+    // 只要有 "/" 的模型 ID (例如 deepseek-ai/DeepSeek-R1)，都交給 Hugging Face
     else if (targetModel.includes('/')) {
       if (!process.env.HUGGINGFACE_API_KEY) throw new Error("Missing HF API Key");
 
-      // 使用 chatCompletion 介面 (大多數現代 Instruct 模型都支援)
       const result = await hf.chatCompletion({
         model: targetModel,
         messages: [{ role: "user", content: prompt }],
@@ -77,17 +98,14 @@ export async function POST(request: Request) {
 
       generatedContent = result.choices[0].message.content || "";
 
-      // [特殊處理] DeepSeek R1 系列
-      // 如果使用的是 DeepSeek R1 模型，它會輸出 <think>...</think> 思考過程
-      // 為了讓 Generator 的回答乾淨直接，我們這裡將其過濾掉
+      // [特殊處理] DeepSeek R1 系列過濾 <think> 標籤
       if (targetModel.toLowerCase().includes('deepseek')) {
         generatedContent = generatedContent.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
       }
     }
 
-    // D. Error: Unknown Model
+    // E. Error: Unknown Model (Fallback)
     else {
-      // 如果遇到未知的模型 ID，您可以選擇報錯，或是 fallback 到預設模型
       console.warn(`Unknown model ${targetModel}, falling back to Gemini`);
       const googleApiKey = process.env.GOOGLE_API_KEY!;
       const genAI = new GoogleGenerativeAI(googleApiKey);
