@@ -22,130 +22,105 @@
   {
     "id": "PLAN_05",
     "category": "生活規劃",
-    "prompt": "請準備一份塞爾維亞 9 天及馬其頓 2 天的旅遊計畫。"
+    "prompt": "我需要一份去突尼西亞旅遊 5 天的計畫。"
   },
   {
     "id": "PLAN_06",
     "category": "生活規劃",
-    "prompt": "我需要一份去突尼西亞旅遊 2 天的計畫。"
+    "prompt": "請為兩位男性朋友規劃一趟為期 10 天的越南放鬆之旅。"
   },
   {
     "id": "PLAN_07",
     "category": "生活規劃",
-    "prompt": "請為兩位男性朋友規劃一趟為期 10 天的越南放鬆之旅。"
+    "prompt": "請為這個週末制定一個計畫。"
   },
   {
     "id": "PLAN_08",
     "category": "生活規劃",
-    "prompt": "請為這個週末制定一個計畫。"
+    "prompt": "請針對想要跑步但不希望減輕體重的素食者，提供一份飲食計畫。"
   },
   {
     "id": "PLAN_09",
     "category": "生活規劃",
-    "prompt": "請針對想要跑步但不希望減輕體重的素食者，提供一份飲食計畫。"
+    "prompt": "我想開發一款遊戲。我該從哪裡開始？"
   },
   {
     "id": "PLAN_10",
     "category": "生活規劃",
-    "prompt": "我有 1000 個文件要從網站下載。為了不讓伺服器過載：1) 我應該以什麼速度下載？請為這個問題選一個好的速度。2) 下載所有文件需要多長時間？"
+    "prompt": "我要如何提高我的時間管理技巧？"
   },
   {
     "id": "PLAN_11",
     "category": "生活規劃",
-    "prompt": "我想開發一款遊戲。我該從哪裡開始？"
+    "prompt": "給我 10 個父親節禮物的好點子，對象是一個喜歡烹飪、軟體開發和自動化的人。"
   },
   {
     "id": "PLAN_12",
     "category": "生活規劃",
-    "prompt": "我要如何提高我的時間管理技巧？"
+    "prompt": "請給我一份針對 Notion App 的詳細技能提升計畫。"
   },
   {
     "id": "PLAN_13",
     "category": "生活規劃",
-    "prompt": "給我 10 個父親節禮物的好點子，對象是一個喜歡烹飪、軟體開發和自動化的人。"
+    "prompt": "我要如何教我的孩子閱讀？他已經認識所有字母了。"
   },
   {
     "id": "PLAN_14",
     "category": "生活規劃",
-    "prompt": "請給我一份針對 Notion App 的詳細技能提升計畫。"
+    "prompt": "請列出每個人都應該玩過的電玩遊戲清單，並說明為什麼每個人都應該玩這款遊戲。"
   },
   {
     "id": "PLAN_15",
     "category": "生活規劃",
-    "prompt": "我要如何教我的孩子閱讀？他已經認識所有字母了。"
+    "prompt": "我想寫一本小說並在 Kindle 上販售。目前 Kindle 上熱賣的流派趨勢是什麼？以及如何利用 AI 寫作？"
   },
   {
     "id": "PLAN_16",
     "category": "生活規劃",
-    "prompt": "請列出每個人都應該玩過的電玩遊戲清單，並說明為什麼每個人都應該玩這款遊戲。"
+    "prompt": "請針對一家名為 BREAD 的麵包店，生成 10 個社群媒體貼文的點子。"
   },
   {
     "id": "PLAN_17",
     "category": "生活規劃",
-    "prompt": "我想寫一本小說並在 Kindle 上販售。目前 Kindle 上熱賣的流派趨勢是什麼？以及如何利用 AI 寫作？"
+    "prompt": "請給我一份從初學者到 OpenAI 工程師的 AI 學習路徑。"
   },
   {
     "id": "PLAN_18",
     "category": "生活規劃",
-    "prompt": "請針對一家名為 BREAD 的麵包店，生成 10 個社群媒體貼文的點子。"
+    "prompt": "如果我想去美國攻讀電腦科學碩士，請給我一些建議或規劃。"
   },
   {
     "id": "PLAN_19",
     "category": "生活規劃",
-    "prompt": "我想要開發一個能夠聊天並回答客戶數據問題的機器人。請問你會如何為這個專案的儲存庫 (Repository) 命名與規劃？"
+    "prompt": "我想開始學習競技程式設計，我該如何開始？"
   },
   {
     "id": "PLAN_20",
     "category": "生活規劃",
-    "prompt": "請給我一份從初學者到 OpenAI 工程師的 AI 學習路徑。"
+    "prompt": "請提供一些前往台灣旅遊的實用建議。"
   },
   {
     "id": "PLAN_21",
     "category": "生活規劃",
-    "prompt": "如果我想去美國攻讀電腦科學碩士，請給我一些建議或規劃。"
+    "prompt": "對於一家擁有數億現金的後期私有公司，有哪些最佳的財務管理策略？請比較它們並討論各自的風險與優勢。"
   },
   {
     "id": "PLAN_22",
     "category": "生活規劃",
-    "prompt": "請幫我分析股票如何賺錢。"
+    "prompt": "我想用 RTX 5090 組一台電腦，請推薦我配置清單。"
   },
   {
     "id": "PLAN_23",
     "category": "生活規劃",
-    "prompt": "我想開始學習競技程式設計，我該如何開始？"
+    "prompt": "如果要種植藍莓，我可以在公寓的室內種植嗎？請給我建議。"
   },
   {
     "id": "PLAN_24",
     "category": "生活規劃",
-    "prompt": "請提供一些前往台灣旅遊的實用建議。"
-  },
-  {
-    "id": "PLAN_25",
-    "category": "生活規劃",
-    "prompt": "對於一家擁有數億現金的後期私有公司，有哪些最佳的財務管理策略？請比較它們並討論各自的風險與優勢。"
-  },
-  {
-    "id": "PLAN_26",
-    "category": "生活規劃",
-    "prompt": "我想用 RTX 4090 組一台電腦，請推薦我配置清單。"
-  },
-  {
-    "id": "PLAN_27",
-    "category": "生活規劃",
-    "prompt": "請幫我生成一份包含 Exxon、Apple、Amazon 和 Microsoft 的股票投資組合報告。"
-  },
-  {
-    "id": "PLAN_28",
-    "category": "生活規劃",
-    "prompt": "如果要種植藍莓，我可以在公寓的室內種植嗎？請給我建議。"
-  },
-  {
-    "id": "PLAN_29",
-    "category": "生活規劃",
     "prompt": "請給我一些在約會軟體 Tinder 上的開場白建議。"
   },
   {
-    "id": "PLAN_30",
+    "id": "PLAN_25",
     "category": "生活規劃",
     "prompt": "我想在網路上輕鬆賺大錢，利用開源 AI 在電腦上創造一些東西，請問有什麼建議？"
   },
@@ -157,147 +132,122 @@
   {
     "id": "DEF_02",
     "category": "知識解說",
-    "prompt": "什麼是 RBBB (右束支傳導阻滯)？"
+    "prompt": "什麼是 BusinessObjects？"
   },
   {
     "id": "DEF_03",
     "category": "知識解說",
-    "prompt": "什麼是 BusinessObjects？"
+    "prompt": "請解釋什麼是 GPT。"
   },
   {
     "id": "DEF_04",
     "category": "知識解說",
-    "prompt": "請解釋什麼是 GPT。"
+    "prompt": "請介紹公共財博弈中的門檻基本概念。"
   },
   {
     "id": "DEF_05",
     "category": "知識解說",
-    "prompt": "請幫我解釋管狀鋼結構的理論解法。"
+    "prompt": "能否用電腦科學的術語解釋「奇點 (Singularity)」是什麼意思？"
   },
   {
     "id": "DEF_06",
     "category": "知識解說",
-    "prompt": "請介紹公共財博弈 中的門檻基本概念。"
+    "prompt": "請解釋這個笑話：妻子打電話給丈夫說：「開車回家要小心，有個瘋子在高速公路上逆向行駛。」丈夫回答：「不只一個，是有好幾百個！」"
   },
   {
     "id": "DEF_07",
     "category": "知識解說",
-    "prompt": "能否用電腦科學的術語解釋「奇點 (Singularity)」是什麼意思？"
+    "prompt": "什麼是 LLM 的微調 (Fine-tuning)？"
   },
   {
     "id": "DEF_08",
     "category": "知識解說",
-    "prompt": "請解釋這個笑話：妻子打電話給丈夫說：「開車回家要小心，有個瘋子在高速公路上逆向行駛。」丈夫回答：「不只一個，是有好幾百個！」"
+    "prompt": "請向一個五歲小孩解釋什麼是資本主義。"
   },
   {
     "id": "DEF_09",
     "category": "知識解說",
-    "prompt": "什麼是 LLM 的微調 (Fine-tuning)？"
+    "prompt": "請解釋市場購物籃分析中的支持度 、信賴度 、提升度 和確信度 。"
   },
   {
     "id": "DEF_10",
     "category": "知識解說",
-    "prompt": "什麼是「霧 」？"
+    "prompt": "請用籃球的比喻來解釋量子運算。"
   },
   {
     "id": "DEF_11",
     "category": "知識解說",
-    "prompt": "請向一個五歲小孩解釋什麼是資本主義。"
+    "prompt": "什麼是四邊形 ？"
   },
   {
     "id": "DEF_12",
     "category": "知識解說",
-    "prompt": "請解釋市場購物籃分析中的支持度 、信賴度 、提升度 和確信度 。"
+    "prompt": "請簡單解釋什麼是 MQTT 及其主要特性。"
   },
   {
     "id": "DEF_13",
     "category": "知識解說",
-    "prompt": "請用籃球的比喻來解釋量子運算。"
+    "prompt": "請解釋一下資料探勘的案例研究。"
   },
   {
     "id": "DEF_14",
     "category": "知識解說",
-    "prompt": "什麼是四邊形 ？"
+    "prompt": "什麼是 SLA ？"
   },
   {
     "id": "DEF_15",
     "category": "知識解說",
-    "prompt": "請簡單解釋什麼是 MQTT 及其主要特性。"
+    "prompt": "請解釋 HTTP 和 HTTPS 之間的區別。"
   },
   {
     "id": "DEF_16",
     "category": "知識解說",
-    "prompt": "請解釋一下資料探勘的案例研究。"
+    "prompt": "什麼是 NP-Hard？"
   },
   {
     "id": "DEF_17",
     "category": "知識解說",
-    "prompt": "什麼是 SLA ？"
+    "prompt": "請解釋一下黑洞是如何運作的。"
   },
   {
     "id": "DEF_18",
     "category": "知識解說",
-    "prompt": "請解釋 HTTP 和 HTTPS 之間的區別。"
+    "prompt": "請向 8 歲的小男孩解釋什麼是量子物理。"
   },
   {
     "id": "DEF_19",
     "category": "知識解說",
-    "prompt": "什麼是 NP-Hard？"
+    "prompt": "什麼是安慰劑測試？"
   },
   {
     "id": "DEF_20",
     "category": "知識解說",
-    "prompt": "請解釋一下黑洞是如何運作的。"
+    "prompt": "請解釋 Proxmox VE 和 VMWare 之間的區別。"
   },
   {
     "id": "DEF_21",
     "category": "知識解說",
-    "prompt": "請向 8 歲的小男孩解釋什麼是量子物理。"
+    "prompt": "請解釋 Python 中的抽象類別 (Abstract Class) 並舉例說明。"
   },
   {
     "id": "DEF_22",
     "category": "知識解說",
-    "prompt": "什麼是安慰劑測試？"
+    "prompt": "什麼是 LLM 中的 LoRA (Low Rank Adaptation)？請像我是五歲小孩一樣解釋 (ELI5)。"
   },
   {
     "id": "DEF_23",
     "category": "知識解說",
-    "prompt": "請解釋 Proxmox VE 和 VMWare 之間的區別。"
+    "prompt": "請詳細描述 LSTM 神經網路模型。"
   },
   {
     "id": "DEF_24",
     "category": "知識解說",
-    "prompt": "請解釋 Python 中的抽象類別 (Abstract Class) 並舉例說明。"
+    "prompt": "請解釋經濟學中的「供給與需求」法則。"
   },
   {
     "id": "DEF_25",
     "category": "知識解說",
-    "prompt": "什麼是 LLM 中的 LoRA (Low Rank Adaptation)？請像我是五歲小孩一樣解釋 (ELI5)。"
-  },
-  {
-    "id": "DEF_26",
-    "category": "知識解說",
-    "prompt": "什麼是「轉子 (Rotor)」？"
-  },
-  {
-    "id": "DEF_27",
-    "category": "知識解說",
-    "prompt": "請詳細描述 LSTM 神經網路模型。"
-  },
-  {
-    "id": "DEF_28",
-    "category": "知識解說",
-    "prompt": "請解釋經濟學中的「供給與需求」法則。"
-  },
-  {
-    "id": "DEF_29",
-    "category": "知識解說",
     "prompt": "能否詳細解釋肺癌的病理生理學？"
-  },
-  {
-    "id": "DEF_30",
-    "category": "知識解說",
-    "prompt": "請解釋這句話中的語病：「They had waiting for an hour when the bus finally arrived.」"
   },
   {
     "id": "WRITE_01",
@@ -307,145 +257,120 @@
   {
     "id": "WRITE_02",
     "category": "文案or文章撰寫",
-    "prompt": "請寫一篇關於化學工業中 4-METHYL-6-PHENYLPYRIMIDIN-2-AMINE 上下游產品的文章，字數約 700 字。"
+    "prompt": "請根據以下清單生成 10 種不同的房間詳細描述，包括房間類型、風格和家具：[\"床\", \"桌子\", \"床頭櫃\", \"燈\", \"鏡子\"]。"
   },
   {
     "id": "WRITE_03",
     "category": "文案or文章撰寫",
-    "prompt": "請根據以下清單生成 10 種不同的房間詳細描述，包括房間類型、風格和家具：[\"床\", \"桌子\", \"床頭櫃\", \"燈\", \"鏡子\"]。"
+    "prompt": "寫一段自我介紹（Bio）：我的名字是 HH，我是一名學生，目前是初階自由工作者，提供的服務包括 Logo 設計和社群媒體管理。"
   },
   {
     "id": "WRITE_04",
     "category": "文案or文章撰寫",
-    "prompt": "寫一段自我介紹（Bio）：我的名字是 [Name]，我是一名學生，目前是初階自由工作者，提供的服務包括 Logo 設計和社群媒體管理。"
+    "prompt": "請寫一個關於殭屍末日的小說。主角是一個沒有任何武器的普通男性。殭屍有簡單的思考能力，並且會變異進化。"
   },
   {
     "id": "WRITE_05",
     "category": "文案or文章撰寫",
-    "prompt": "請寫一個關於殭屍末日的小說。主角是一個沒有任何武器的普通男性。殭屍有簡單的思考能力，並且會變異進化。"
+    "prompt": "請幫我寫一封求職信 ，強調我的創意和執行力。"
   },
   {
     "id": "WRITE_06",
     "category": "文案or文章撰寫",
-    "prompt": "請幫我寫一封求職信 ，強調我的創意和執行力。"
+    "prompt": "請幫我寫一首關於機器人的詩，限制在 16 行以內。"
   },
   {
     "id": "WRITE_07",
     "category": "文案or文章撰寫",
-    "prompt": "請寫一段關於「榮譽在砲火下 (Honor under fire)」的文字。"
+    "prompt": "請為一個針對 5 歲兒童的電視節目寫 5 個行銷口號 (Slogans)。節目內容是一群年輕冒險家穿越不同歷史時期。"
   },
   {
     "id": "WRITE_08",
     "category": "文案or文章撰寫",
-    "prompt": "請幫我寫一首關於機器人的詩，限制在 16 行以內。"
+    "prompt": "我是一個保險員，請幫我寫一封 Email 給客戶，要求他們發送 2022 年 2 月 1 日事故中受損車輛的照片。"
   },
   {
     "id": "WRITE_09",
     "category": "文案or文章撰寫",
-    "prompt": "身為商業軟體專家與內容創作者，請寫一篇關於使用與 Power Platform 整合的低代碼 BPM 的 4 個理由，以避免專案失敗。"
+    "prompt": "請寫一個好萊塢電影劇本，格式為 Fountain。主角是一位名叫 Crazy 的科學家，他必須關閉他的太空船。重點在於對話而非動作。"
   },
   {
     "id": "WRITE_10",
     "category": "文案or文章撰寫",
-    "prompt": "請根據以下輸入建議 20 個網域名稱：紐約的 [Name] 花店。"
+    "prompt": "請為 symeres.com 寫一篇 300 字的公司廣告。"
   },
   {
     "id": "WRITE_11",
     "category": "文案or文章撰寫",
-    "prompt": "請為一個針對 5 歲兒童的電視節目寫 5 個行銷口號 (Slogans)。節目內容是一群年輕冒險家穿越不同歷史時期。"
+    "prompt": "請幫我寫一份正式的離職信，語氣要客氣。"
   },
   {
     "id": "WRITE_12",
     "category": "文案or文章撰寫",
-    "prompt": "我是一個保險員，請幫我寫一封 Email 給客戶，要求他們發送 2022 年 2 月 1 日事故中受損車輛的照片。"
+    "prompt": "請寫一篇關於「成長型思維 (Growth Mindset)」的文章，並使用 Markdown 格式。"
   },
   {
     "id": "WRITE_13",
     "category": "文案or文章撰寫",
-    "prompt": "請寫一個好萊塢電影劇本，格式為 Fountain。主角是一位名叫 [Name] 的科學家，他必須關閉他的太空船。重點在於對話而非動作。"
+    "prompt": "請寫一篇關於 200 字的文章，討論《戰爭遊戲 (Ender's Game)》這本書與情感。"
   },
   {
     "id": "WRITE_14",
     "category": "文案or文章撰寫",
-    "prompt": "請為 symeres.com 寫一篇 300 字的公司廣告。"
+    "prompt": "請為這部電影寫一個廣播廣告腳本：超人變壞了，地精們聯合起來試圖阻止他。"
   },
   {
     "id": "WRITE_15",
     "category": "文案or文章撰寫",
-    "prompt": "請幫我寫一份正式的離職信，語氣要客氣。"
+    "prompt": "請幫我寫一首關於「住院的痛苦」的詩。"
   },
   {
     "id": "WRITE_16",
     "category": "文案or文章撰寫",
-    "prompt": "請寫一篇關於「成長型思維 (Growth Mindset)」的文章，並使用 Markdown 格式。"
+    "prompt": "請以一位英國母親的口吻，寫一段獨白。"
   },
   {
     "id": "WRITE_17",
     "category": "文案or文章撰寫",
-    "prompt": "請寫一篇關於 200 字的文章，討論《戰爭遊戲 (Ender's Game)》這本書與情感。"
+    "prompt": "請寫一封電子郵件申請例外處理，允許一位美國客戶使用 WhaleFin 服務。該客戶是比特幣礦工，這對我們的新業務很重要。"
   },
   {
     "id": "WRITE_18",
     "category": "文案or文章撰寫",
-    "prompt": "請為這部電影寫一個廣播廣告腳本：超人變壞了，地精們聯合起來試圖阻止他。"
+    "prompt": "請以新聞記者的身分，準備並播報一則關於你所在地區重要新聞事件的短篇報導。"
   },
   {
     "id": "WRITE_19",
     "category": "文案or文章撰寫",
-    "prompt": "請幫我寫一首關於「住院的痛苦」的詩。"
+    "prompt": "請為一支在亞馬遜上販售的「放入嘴裡會溶解的湯匙」寫一篇產品評論。"
   },
   {
     "id": "WRITE_20",
     "category": "文案or文章撰寫",
-    "prompt": "請以一位英國母親的口吻，寫一段獨白。"
+    "prompt": "請幫我寫一個關於「3D 列印藍牙喇叭」的詩。"
   },
   {
     "id": "WRITE_21",
     "category": "文案or文章撰寫",
-    "prompt": "請寫一封電子郵件申請例外處理，允許一位美國客戶使用 WhaleFin 服務。該客戶是比特幣礦工，這對我們的新業務很重要。"
+    "prompt": "請為我寫一份關於機器翻譯中句子級別與文檔級別差異的碩士論文段落。"
   },
   {
     "id": "WRITE_22",
     "category": "文案or文章撰寫",
-    "prompt": "請以新聞記者的身分，準備並播報一則關於你所在地區重要新聞事件的短篇報導。"
+    "prompt": "請幫我寫一個關於「時空旅人回到過去卻無法改變歷史」的短篇科幻故事。"
   },
   {
     "id": "WRITE_23",
     "category": "文案or文章撰寫",
-    "prompt": "請為一支在亞馬遜上販售的「放入嘴裡會溶解的湯匙」寫一篇產品評論。"
+    "prompt": "請幫我潤飾這段履歷的經歷描述，讓它看起來更有成就感。"
   },
   {
     "id": "WRITE_24",
     "category": "文案or文章撰寫",
-    "prompt": "請幫我寫一個關於「3D 列印藍牙喇叭」的詩。"
-  },
-  {
-    "id": "WRITE_25",
-    "category": "文案or文章撰寫",
-    "prompt": "請幫我重寫這段文字，使其更簡潔清晰：「如果您對我的費率有任何疑問，或者您覺得有必要增加或減少此專案的範圍，請告訴我。」"
-  },
-  {
-    "id": "WRITE_26",
-    "category": "文案or文章撰寫",
-    "prompt": "請為我寫一份關於機器翻譯中句子級別與文檔級別差異的碩士論文段落。"
-  },
-  {
-    "id": "WRITE_27",
-    "category": "文案or文章撰寫",
-    "prompt": "請幫我寫一個關於「時空旅人回到過去卻無法改變歷史」的短篇科幻故事。"
-  },
-  {
-    "id": "WRITE_28",
-    "category": "文案or文章撰寫",
-    "prompt": "請幫我潤飾這段履歷的經歷描述，讓它看起來更有成就感。"
-  },
-  {
-    "id": "WRITE_29",
-    "category": "文案or文章撰寫",
     "prompt": "請幫我寫一篇關於「愛」的散文，格式需包含：引言、正文（兩段）、結論。"
   },
   {
-    "id": "WRITE_30",
+    "id": "WRITE_25",
     "category": "文案or文章撰寫",
     "prompt": "請寫一封信給作者，感謝他修復了軟體（英文郵件）。"
   },
@@ -457,145 +382,120 @@
   {
     "id": "QA_02",
     "category": "疑問解答",
-    "prompt": "在 WebIDL 中定義的這段程式碼 `() => device.gatt.getPrimaryService('health_thermometer')` 的變數類型是什麼？"
+    "prompt": "美國總統可以連任幾屆？怎麼產生的？"
   },
   {
     "id": "QA_03",
     "category": "疑問解答",
-    "prompt": "美國總統可以連任幾屆？怎麼產生的？"
+    "prompt": "如何製作火箭？"
   },
   {
     "id": "QA_04",
     "category": "疑問解答",
-    "prompt": "如何製作火箭？"
+    "prompt": "請列出五個類似 TypeScript 的工具。"
   },
   {
     "id": "QA_05",
     "category": "疑問解答",
-    "prompt": "EGFR p.E746_A750del 突變，提示什麼疾病風險？"
+    "prompt": "學術不誠實會毀了你的一生嗎？如果不會，該如何挽回？"
   },
   {
     "id": "QA_06",
     "category": "疑問解答",
-    "prompt": "Llama-2 模型需要多少 GPU 記憶體才能運行？"
+    "prompt": "世界是如何創造的？"
   },
   {
     "id": "QA_07",
     "category": "疑問解答",
-    "prompt": "除了英文之外，還使用了哪些語言來訓練你？請列出所有語言。"
+    "prompt": "法國人會怎麼說「痛苦是不可避免的，受苦是一種選擇」？"
   },
   {
     "id": "QA_08",
     "category": "疑問解答",
-    "prompt": "請列出五個類似 TypeScript 的工具，只需列出名稱，不需要描述。"
+    "prompt": "年長者真的比年輕人更需要情感，也就是說更需要「愛」嗎？"
   },
   {
     "id": "QA_09",
     "category": "疑問解答",
-    "prompt": "學術不誠實會毀了你的一生嗎？如果不會，該如何挽回？"
+    "prompt": "如何在 Debian 10 上安裝 Vicuna？"
   },
   {
     "id": "QA_10",
     "category": "疑問解答",
-    "prompt": "世界是如何創造的？"
+    "prompt": "請提供第一個西羅定理 (Sylow theorem) 的證明。"
   },
   {
     "id": "QA_11",
     "category": "疑問解答",
-    "prompt": "法國人會怎麼說「痛苦是不可避免的，受苦是一種選擇」？"
+    "prompt": "請告訴我 Poor man's ginseng 種子的攝氏溫度、濕度百分比、日照時數、降雨量毫米、土壤類型和氣候類型。"
   },
   {
     "id": "QA_12",
     "category": "疑問解答",
-    "prompt": "年長者真的比年輕人更需要情感，也就是說更需要「愛」嗎？"
+    "prompt": "我該如何知道某項任務是否重要？"
   },
   {
     "id": "QA_13",
     "category": "疑問解答",
-    "prompt": "如何在 Debian 10 上安裝 Vicuna？"
+    "prompt": "甚麼是 USB？"
   },
   {
     "id": "QA_14",
     "category": "疑問解答",
-    "prompt": "請提供第一個西羅定理 (Sylow theorem) 的證明。"
+    "prompt": "時常感到失落怎麼辦？"
   },
   {
     "id": "QA_15",
     "category": "疑問解答",
-    "prompt": "101 乘以 101 是多少？"
+    "prompt": "機器學習對人類很有棒。它有什麼幫助？"
   },
   {
     "id": "QA_16",
     "category": "疑問解答",
-    "prompt": "請告訴我 Poor man's ginseng 種子的攝氏溫度、濕度百分比、日照時數、降雨量毫米、土壤類型和氣候類型。"
+    "prompt": "如何用 Rust 寫一個 Hello World 程式？"
   },
   {
     "id": "QA_17",
     "category": "疑問解答",
-    "prompt": "我該如何知道某項任務是否重要？"
+    "prompt": "解方程式 x^2 - 125x + 2500 = 0，請逐步寫出計算過程。"
   },
   {
     "id": "QA_18",
     "category": "疑問解答",
-    "prompt": "USB 2 傳輸線通常使用的導線直徑是多少？請盡量以毫米為單位回答。"
+    "prompt": "我該如何從舊金山到紐約市？"
   },
   {
     "id": "QA_19",
     "category": "疑問解答",
-    "prompt": "我有三顆蘋果，吃了兩顆梨子。我還剩下幾顆蘋果？"
+    "prompt": "在 Excel 中，有那些好用的工具或功能？"
   },
   {
     "id": "QA_20",
     "category": "疑問解答",
-    "prompt": "機器學習對人類很有棒。它有什麼幫助？"
+    "prompt": "請問水煮蛋最有效率的烹飪方法是什麼？"
   },
   {
     "id": "QA_21",
     "category": "疑問解答",
-    "prompt": "如何用 Rust 寫一個 Hello World 程式？"
+    "prompt": "在 Rust 專案中，如何處理像是寫入檔案這類的阻塞呼叫 (blocking call)，特別是在 `async` 函式中？"
   },
   {
     "id": "QA_22",
     "category": "疑問解答",
-    "prompt": "解方程式 x^2 - 125x + 2500 = 0，請逐步寫出計算過程。"
+    "prompt": "請計算出：x+2y=16, 3x-y=37，請解 x 和 y。"
   },
   {
     "id": "QA_23",
     "category": "疑問解答",
-    "prompt": "我該如何從舊金山到紐約市？"
+    "prompt": "為什麼天空是藍色的？請用科學角度解釋。"
   },
   {
     "id": "QA_24",
     "category": "疑問解答",
-    "prompt": "在 Excel 中，第 30 列 (Column) 的名稱是什麼？"
+    "prompt": "藍芽耳機的好壞與價格差在哪？"
   },
   {
     "id": "QA_25",
-    "category": "疑問解答",
-    "prompt": "請問水煮蛋最有效率的烹飪方法是什麼？"
-  },
-  {
-    "id": "QA_26",
-    "category": "疑問解答",
-    "prompt": "在 Rust 專案中，如何處理像是寫入檔案這類的阻塞呼叫 (blocking call)，特別是在 `async` 函式中？"
-  },
-  {
-    "id": "QA_27",
-    "category": "疑問解答",
-    "prompt": "請幫我找出這兩行程式碼的邏輯錯誤：x+2y=16, 3x-y=37，請解 x 和 y。"
-  },
-  {
-    "id": "QA_28",
-    "category": "疑問解答",
-    "prompt": "為什麼天空是藍色的？請用科學角度解釋。"
-  },
-  {
-    "id": "QA_29",
-    "category": "疑問解答",
-    "prompt": "我的藍牙耳機壞了，我應該去看牙醫還是耳科醫生？"
-  },
-  {
-    "id": "QA_30",
     "category": "疑問解答",
     "prompt": "如果我把冰塊放入陶瓷杯加水，杯底很快就會濕掉。但如果只裝冷水不加冰塊就不會。這是為什麼？"
   }

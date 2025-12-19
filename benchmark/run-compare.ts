@@ -16,7 +16,7 @@ const INPUT_FILE = path.join(__dirname, 'test-dataset.json');
 const OUTPUT_DIR = path.join(__dirname, 'results');
 
 // 題與題之間的冷卻時間 (毫秒)
-const DELAY_MS = 10000;
+const DELAY_MS = 5000;
 
 // *** 核心設定：比較哪兩個策略 ***
 // 可選值: 'original' (原始輸入) | 'role-play' | 'structured' | 'cot' | 'hybrid'
