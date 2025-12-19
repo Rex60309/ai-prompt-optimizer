@@ -1,4 +1,4 @@
-// npx ts-node benchmark/run-strategy-compare.ts
+// npx ts-node benchmark/run-compare.ts
 
 import axios from 'axios';
 import fs from 'fs';
@@ -19,11 +19,11 @@ const OUTPUT_DIR = path.join(__dirname, 'results');
 const DELAY_MS = 10000;
 
 // *** 核心設定：比較哪兩個策略 ***
-// 可選值: 'zero-shot' | 'cot' | 'structured' | 'few-shot'
-const STRATEGY_A = 'zero-shot';
-const STRATEGY_B = 'cot';
+// 可選值: 'original' (原始輸入) | 'role-play' | 'structured' | 'cot' | 'hybrid'
+const STRATEGY_A = 'original';   // 設定 A 為原始輸入 (Baseline)
+const STRATEGY_B = 'role-play';     // 設定 B 為優化策略 (Experiment)
 
-// [修改] 更新模型配置
+// 更新模型配置
 const CONFIG = {
     optimizerModel: 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B', // 優化prompt
     generatorModel: 'deepseek-ai/DeepSeek-R1-Distill-Qwen-14B', // 輸出回答
@@ -36,7 +36,7 @@ const CRITERIA_KEYS: { [key: string]: string } = {
     '需求符合度': 'requirement',
     '結構清晰度': 'structure',
     '創意與洞察力': 'creativity',
-    '實用性': 'practicality',
+    '語氣風格': 'tone_style'  // 針對新版 Judge Prompt 增加這個 mapping
 };
 
 // --- 型別定義 ---
@@ -75,21 +75,36 @@ async function callApiWithRetry(url: string, data: any, retries = 3, delay = 200
 
             // 如果是 503 (Overloaded) 或 429 (Too Many Requests)，顯示黃色警告並重試
             if (status === 503 || status === 429) {
-                console.warn(`    ⚠️  API 忙線中 (${status})，等待 ${delay/1000}秒後重試 (${i + 1}/${retries})...`);
+                console.warn(`    ⚠️  API 忙線中 (${status})，等待 ${delay / 1000}秒後重試 (${i + 1}/${retries})...`);
                 if (isLastAttempt) throw error;
                 await sleep(delay);
-                delay *= 2; // 指數退避：下次等更久
+                delay *= 2; // 指數退避
             } else {
-                // 其他錯誤直接拋出
                 throw error;
             }
         }
     }
 }
 
+// 核心邏輯：取得 Prompt (如果是 original 則不優化)
+async function getPromptForStrategy(strategy: string, userPrompt: string, modelName: string): Promise<string> {
+    // 若策略設為 'original'，直接回傳原始輸入
+    if (strategy === 'original') {
+        return userPrompt;
+    }
+
+    // 否則呼叫優化 API
+    const res = await callApiWithRetry(`${BASE_URL}/optimize`, {
+        prompt: userPrompt,
+        model: modelName,
+        strategy: strategy
+    });
+    return res.data.optimizedPrompt;
+}
+
 // --- 主程式 ---
 async function runStrategyBenchmark() {
-    console.log('🚀 開始執行「策略對決」自動化測試 (DeepSeek & Qwen 版)...');
+    console.log('🚀 開始執行「策略對決」自動化測試 (支援 Original 模式)...');
     console.log(`⚔️  對決組合: [Strategy A: ${STRATEGY_A}] vs [Strategy B: ${STRATEGY_B}]`);
     console.log(`🤖 模型設定:\n    Opt:   ${CONFIG.optimizerModel}\n    Gen:   ${CONFIG.generatorModel}\n    Judge: ${CONFIG.judgeModel}`);
 
@@ -115,30 +130,22 @@ async function runStrategyBenchmark() {
 
         try {
             // ------------------------------------------------
-            // Step 1: 雙重優化
+            // Step 1: 準備 Prompt (優化 或 原始)
             // ------------------------------------------------
-            process.stdout.write(`  - Step 1: 優化 Prompt... `);
+            process.stdout.write(`  - Step 1: 準備 Prompt (${STRATEGY_A} vs ${STRATEGY_B})... `);
 
-            const optResA = await callApiWithRetry(`${BASE_URL}/optimize`, {
-                prompt: item.prompt,
-                model: CONFIG.optimizerModel,
-                strategy: STRATEGY_A
-            });
-            const promptA = optResA.data.optimizedPrompt;
+            // 取得 Prompt A
+            const promptA = await getPromptForStrategy(STRATEGY_A, item.prompt, CONFIG.optimizerModel);
+            // 避免 API Rate Limit，中間稍微休息
+            if (STRATEGY_A !== 'original') await sleep(1000);
 
-            await sleep(1000);
-
-            const optResB = await callApiWithRetry(`${BASE_URL}/optimize`, {
-                prompt: item.prompt,
-                model: CONFIG.optimizerModel,
-                strategy: STRATEGY_B
-            });
-            const promptB = optResB.data.optimizedPrompt;
+            // 取得 Prompt B
+            const promptB = await getPromptForStrategy(STRATEGY_B, item.prompt, CONFIG.optimizerModel);
 
             console.log('OK');
 
             // ------------------------------------------------
-            // Step 2: 雙重生成
+            // Step 2: 雙重生成 (使用 generatorModel)
             // ------------------------------------------------
             process.stdout.write('  - Step 2: 生成回答... ');
 
@@ -181,12 +188,12 @@ async function runStrategyBenchmark() {
             let winsA = 0;
             let winsB = 0;
             let countCriteria = 0;
-            const scoresMap: {[key: string]: {scoreA: string, scoreB: string}} = {};
+            const scoresMap: { [key: string]: { scoreA: string, scoreB: string } } = {};
 
             if (judgeData.criteria && Array.isArray(judgeData.criteria)) {
                 countCriteria = judgeData.criteria.length;
                 judgeData.criteria.forEach((c: any) => {
-                    // [修改] 強制轉型並四捨五入至小數點後一位
+                    // 強制轉型並四捨五入至小數點後一位
                     const rawScoreA = Number(c.scoreA);
                     const rawScoreB = Number(c.scoreB);
 
@@ -200,6 +207,7 @@ async function runStrategyBenchmark() {
                     else if (scoreB > scoreA) winsB++;
 
                     let key = 'other';
+                    // 根據中文名稱 mapping 到英文 key (方便 CSV 閱讀)
                     for (const [zhName, engKey] of Object.entries(CRITERIA_KEYS)) {
                         if (c.criterionName.includes(zhName)) {
                             key = engKey;
@@ -207,13 +215,17 @@ async function runStrategyBenchmark() {
                         }
                     }
                     if (key !== 'other') {
-                        // [修改] 儲存為字串，確保輸出格式統一 (如 "8.0")
                         scoresMap[key] = { scoreA: scoreA.toFixed(1), scoreB: scoreB.toFixed(1) };
+                    } else {
+                        // 處理未在 mapping 中的其他面向 (例如 tone_style 若名稱不符)
+                        // 可以用 criterionName 作為 fallback key
+                        const fallbackKey = c.criterionName.split(' ')[0]; // 取第一個詞
+                        scoresMap[fallbackKey] = { scoreA: scoreA.toFixed(1), scoreB: scoreB.toFixed(1) };
                     }
                 });
             }
 
-            // [修改] 總分差也格式化
+            // 總分差
             const diffVal = Math.abs(totalScoreB - totalScoreA);
             const diff = roundTo1Decimal(diffVal).toFixed(1);
 
@@ -259,7 +271,7 @@ async function runStrategyBenchmark() {
         }
 
         if (index < dataset.length - 1) {
-            process.stdout.write(`  ⏳ 冷卻中 (${DELAY_MS/1000}s): `);
+            process.stdout.write(`  ⏳ 冷卻中 (${DELAY_MS / 1000}s): `);
             const steps = 5;
             for (let i = 0; i < steps; i++) {
                 process.stdout.write('.');
@@ -276,6 +288,7 @@ async function runStrategyBenchmark() {
         { id: 'comparison', title: '總分比較' },
         { id: 'win_count', title: '勝場統計' },
 
+        // 注意：這裡的 Header Title 會動態顯示策略名稱，例如 "結構清晰(original)" vs "結構清晰(structured)"
         { id: 'completeness_stratA', title: `內容完整(${STRATEGY_A})` },
         { id: 'completeness_stratB', title: `內容完整(${STRATEGY_B})` },
         { id: 'requirement_stratA', title: `需求符合(${STRATEGY_A})` },
@@ -284,8 +297,8 @@ async function runStrategyBenchmark() {
         { id: 'structure_stratB', title: `結構清晰(${STRATEGY_B})` },
         { id: 'creativity_stratA', title: `創意洞察(${STRATEGY_A})` },
         { id: 'creativity_stratB', title: `創意洞察(${STRATEGY_B})` },
-        { id: 'practicality_stratA', title: `實用性(${STRATEGY_A})` },
-        { id: 'practicality_stratB', title: `實用性(${STRATEGY_B})` },
+        { id: 'tone_style_stratA', title: `語氣風格(${STRATEGY_A})` },
+        { id: 'tone_style_stratB', title: `語氣風格(${STRATEGY_B})` },
 
         { id: 'judgeSummary', title: 'AI 評語' },
         { id: 'prompt', title: 'Original User Prompt' },
@@ -305,6 +318,7 @@ async function runStrategyBenchmark() {
 
     await csvWriter.writeRecords(results);
 
+    // 同時存一份 JSON 備份
     const jsonPath = path.join(OUTPUT_DIR, `strategy_compare_${timestamp}.json`);
     fs.writeFileSync(jsonPath, JSON.stringify(results, null, 2));
 

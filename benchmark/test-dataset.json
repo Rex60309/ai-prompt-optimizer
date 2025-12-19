@@ -2,11 +2,6 @@
   {
     "id": "stem_01",
     "category": "STEM",
-    "prompt": "什麼是黑洞？請用簡單的方式解釋。"
-  },
-  {
-    "id": "travel_01",
-    "category": "Travel",
-    "prompt": "幫我規劃日本東京7天6夜的自由行行程，我喜歡逛街和美食。"
+    "prompt": "什麼是黑洞？"
   }
 ]

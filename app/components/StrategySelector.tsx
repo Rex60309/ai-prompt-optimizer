@@ -3,9 +3,9 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check, Lightbulb, Target, Layers, BrainCircuit, MessageSquare } from 'lucide-react';
+import { ChevronDown, Check, Lightbulb, Layers, BrainCircuit, Sparkles } from 'lucide-react';
 
-export type StrategyType = 'zero-shot' | 'few-shot' | 'cot' | 'structured';
+export type StrategyType = 'role-play' | 'structured' | 'cot' | 'hybrid';
 
 interface StrategySelectorProps {
     value: StrategyType;
@@ -16,13 +16,13 @@ interface StrategySelectorProps {
 // 定義策略資料結構
 const STRATEGIES: { id: StrategyType; name: string; icon: React.ReactNode }[] = [
     {
-        id: 'zero-shot',
-        name: 'Zero-Shot Optimization',
+        id: 'role-play',
+        name: 'Role Play',
         icon: <Lightbulb className="w-3 h-3" />
     },
     {
         id: 'structured',
-        name: 'Structured (CO-STAR)',
+        name: 'Structured',
         icon: <Layers className="w-3 h-3" />
     },
     {
@@ -31,9 +31,9 @@ const STRATEGIES: { id: StrategyType; name: string; icon: React.ReactNode }[] = 
         icon: <BrainCircuit className="w-3 h-3" />
     },
     {
-        id: 'few-shot',
-        name: 'Few-Shot Learning',
-        icon: <Target className="w-3 h-3" />
+        id: 'hybrid',
+        name: 'Hybrid',
+        icon: <Sparkles className="w-3 h-3" />
     },
 ];
 
