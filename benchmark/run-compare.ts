@@ -16,7 +16,7 @@ const INPUT_FILE = path.join(__dirname, 'test-dataset.json');
 const OUTPUT_DIR = path.join(__dirname, 'results');
 
 // 題與題之間的冷卻時間 (毫秒)
-const DELAY_MS = 5000;
+const DELAY_MS = 3000;
 
 // *** 核心設定：比較哪兩個策略 ***
 // 可選值: 'original' (原始輸入) | 'role-play' | 'structured' | 'cot' | 'hybrid'
@@ -25,9 +25,9 @@ const STRATEGY_B = 'role-play';     // 設定 B 為優化策略 (Experiment)
 
 // 更新模型配置
 const CONFIG = {
-    optimizerModel: 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B', // 優化prompt
-    generatorModel: 'deepseek-ai/DeepSeek-R1-Distill-Qwen-14B', // 輸出回答
-    judgeModel: 'Qwen/Qwen2.5-72B-Instruct', // 評審
+    optimizerModel: 'gpt-5-mini', // 優化prompt
+    generatorModel: 'gpt-4o-mini', // 輸出回答
+    judgeModel: 'gpt-5-mini', // 評審
 };
 
 // --- 評分面向對照表 ---

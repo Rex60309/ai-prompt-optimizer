@@ -1,71 +1,69 @@
-// app/api/judge/route.ts
-
 import { NextResponse } from 'next/server';
-import OpenAI from 'openai'; // 修改導入：使用 OpenAI SDK
+import OpenAI from 'openai';
 
-// --- 輔助函式：清洗 JSON 字串 ---
-function sanitizeJsonString(str: string): string {
-  let inString = false;
-  let result = '';
+// --- 強力 JSON 解析器 ---
+function aggressiveJsonParse(text: string) {
+  // 1. 基本清理：移除 Markdown 標記
+  let cleaned = text
+      .replace(/```json/gi, "")
+      .replace(/```/g, "")
+      .trim();
 
-  for (let i = 0; i < str.length; i++) {
-    const char = str[i];
-    if (char === '"' && (i === 0 || str[i - 1] !== '\\')) {
-      inString = !inString;
-    }
-    if (inString) {
-      if (char === '\n') {
-        result += '\\n';
-      } else if (char === '\r') {
-        // ignore
-      } else if (char === '\t') {
-        result += '\\t';
-      } else {
-        result += char;
-      }
-    } else {
-      result += char;
+  // 2. 提取最外層的大括號 (防止前後有雜訊文字)
+  const firstOpen = cleaned.indexOf('{');
+  const lastClose = cleaned.lastIndexOf('}');
+
+  if (firstOpen !== -1 && lastClose !== -1) {
+    cleaned = cleaned.substring(firstOpen, lastClose + 1);
+  } else {
+    throw new Error("No JSON brackets {} found in response");
+  }
+
+  try {
+    // 3. 嘗試標準解析
+    return JSON.parse(cleaned);
+  } catch (e) {
+    // 4. 如果失敗，嘗試修復常見錯誤：
+    // 很多時候 LLM 會在字串裡直接換行，這是 JSON 不允許的。
+    // 我們嘗試把字串內的「實際換行」替換成「\n」
+    // 注意：這是一個簡單的 heuristic 修復，無法涵蓋所有情況
+    try {
+      const fixed = cleaned.replace(/\n/g, "\\n").replace(/\r/g, "");
+      return JSON.parse(fixed);
+    } catch (e2) {
+      // 如果還是失敗，拋出原始內容以便除錯
+      throw new Error(`Parse failed. Content snippet: ${cleaned.substring(0, 50)}...`);
     }
   }
-  return result;
 }
 
-// --- 輔助函式：交換文字中的「前者」與「後者」 (僅負責交換) ---
+// --- 輔助函式：交換文字中的「前者」與「後者」 ---
 function swapTerminology(text: string): string {
   if (!text) return "";
-  // 1. 前者 -> ___TEMP___
-  // 2. 後者 -> 前者
-  // 3. ___TEMP___ -> 後者
   return text.replace(/前者/g, "___TEMP___")
       .replace(/後者/g, "前者")
       .replace(/___TEMP___/g, "後者");
 }
 
 export async function POST(request: Request) {
-  // 修改：檢查 OPENAI_API_KEY
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    return NextResponse.json({ error: "Server configuration error: OPENAI_API_KEY is not set." }, { status: 500 });
+    return NextResponse.json({ error: "OPENAI_API_KEY is not set." }, { status: 500 });
   }
 
-  // 修改：初始化 OpenAI 客戶端
-  const openai = new OpenAI({
-    apiKey: apiKey,
-  });
+  const openai = new OpenAI({ apiKey });
 
   try {
     const { originalPrompt, outputA, outputB } = await request.json();
 
     if (!originalPrompt || !outputA || !outputB) {
-      return NextResponse.json({ error: 'Missing required fields for judgment.' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 });
     }
 
-    // 修改：設定模型為 GPT-5
-    const JUDGE_MODEL = 'gpt-5';
+    // ★★★ 建議先改回 gpt-4o 測試，確認是否為模型問題 ★★★
+    const JUDGE_MODEL = 'gpt-5-mini';
 
-    // --- Step 1: 位置偏差處理 (Blind Test) ---
     const isSwapped = Math.random() > 0.5;
-
     const promptContentA = isSwapped ? outputB : outputA;
     const promptContentB = isSwapped ? outputA : outputB;
 
@@ -91,15 +89,13 @@ export async function POST(request: Request) {
     
       Please note the following:
       - Use "traditional chinese" to response.
-      - Use Markdown to demonstrate inside the JSON strings if needed.
       - Don't let scores get too inflated.
       - 兩者的分數不能相同，可以到小數點後第一位，且允許差距大
       - Please replace Output A with the term "前者" when using output; replace Output B with the term "後者" when using output.
       - 評語不要有Output A或Output B的詞彙出現
       - 請無視是否有回答截斷的部分，請就已產出的內容作評分比較
       - **CRITICAL**: The "summary" field MUST start with a bold statement indicating the winner, followed by a newline. Example: "**前者:表現較好!**\\n\\n(Rest of the summary...)"
-      - IMPORTANT: Ensure all newlines inside string values are escaped (use \\n, do not use literal line breaks).
-      - Do not output markdown code blocks (like \`\`\`json). Output raw JSON only.
+      - Do not output markdown code blocks. Output raw JSON only.
     
       **INPUTS:**
       **Original User Prompt:**
@@ -114,67 +110,64 @@ export async function POST(request: Request) {
       """
       ${promptContentB}
       """
-      **JSON OUTPUT:**
     `;
 
-    // 修改：使用 OpenAI 的 chat completion 方法
     const response = await openai.chat.completions.create({
       model: JUDGE_MODEL,
       messages: [
+        { role: "system", content: "You are a JSON generator. output valid JSON only." },
         { role: "user", content: judgeMetaPrompt }
       ],
-      max_completion_tokens: 2500,
+      response_format: { type: "json_object" }, // 強制 JSON
     });
 
-    // 修改：OpenAI 回傳結構略有不同 (雖然 content 位置通常一樣，但型別定義來自 OpenAI SDK)
     const textResponse = response.choices[0].message.content || "";
 
-    // --- JSON 解析 ---
+    // --- 解析與錯誤處理 ---
     let judgeResult;
     try {
-      // 有時候 GPT 會包裹 ```json ... ```，這裡做個簡單處理
-      const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error("No valid JSON object found in AI response.");
-      }
-      let jsonString = jsonMatch[0];
-      jsonString = sanitizeJsonString(jsonString);
-      judgeResult = JSON.parse(jsonString);
-    } catch (parseError) {
-      console.error("Failed to parse JSON. Raw:", textResponse);
-      throw new Error("AI response was not in a valid JSON format after sanitization.");
+      judgeResult = aggressiveJsonParse(textResponse);
+    } catch (parseError: any) {
+      // ★★★ 關鍵除錯點 ★★★
+      // 請在你的 VS Code / Terminal 看這裡印出的內容
+      console.error("=============== JSON PARSE ERROR ===============");
+      console.error("Error Message:", parseError.message);
+      console.error("Raw AI Response:", textResponse);
+      console.error("================================================");
+
+      return NextResponse.json({
+        error: "AI response was not in a valid JSON format.",
+        details: parseError.message,
+        raw_snippet: textResponse.substring(0, 100) // 回傳部分內容給前端顯示
+      }, { status: 500 });
     }
 
-    // --- Step 2: 位置偏差處理 - 校正回歸 (Restore Order) ---
+    // --- 位置偏差還原 ---
     if (isSwapped) {
-      // 1. 交換分數
-      if (judgeResult.criteria && Array.isArray(judgeResult.criteria)) {
+      if (judgeResult.criteria) {
         judgeResult.criteria = judgeResult.criteria.map((item: any) => ({
           ...item,
           scoreA: item.scoreB,
           scoreB: item.scoreA,
-          justification: swapTerminology(item.justification) // 交換評語中的指涉
+          justification: swapTerminology(item.justification)
         }));
       }
-
-      // 2. 交換 Summary 中的指涉
       if (judgeResult.summary) {
         judgeResult.summary = swapTerminology(judgeResult.summary);
       }
     }
 
-    // --- Step 3: 美化標籤 (無論是否交換，最後統一執行) ---
-    // 這一步確保無論 isSwapped 是 true 還是 false，"前者" 都會變成 "前者(原始prompt)的"
+    // --- 美化輸出 ---
     if (judgeResult.summary) {
       judgeResult.summary = judgeResult.summary
-          .replace(/前者[:：]/, "前者(原始prompt)的") // 支援半形或全形冒號
-          .replace(/後者[:：]/, "後者(優化prompt)的");
+          .replace(/前者[:：]/, "**前者(原始)**：")
+          .replace(/後者[:：]/, "**後者(優化)**：");
     }
 
     return NextResponse.json(judgeResult);
 
   } catch (error: any) {
     console.error('Error in /api/judge:', error);
-    return NextResponse.json({ error: error.message || 'Failed to get judgment from AI.' }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

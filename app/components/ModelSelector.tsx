@@ -85,6 +85,7 @@ const MODEL_GROUPS: ModelGroup[] = [
       },
     ]
   },
+    /*
   {
     groupName: 'OpenAI',
     items: [
@@ -94,12 +95,13 @@ const MODEL_GROUPS: ModelGroup[] = [
         description: 'Smart',
       },
       {
-        id: 'gpt-5-mini',
-        name: 'GPT 5 mini',
+        id: 'gpt-4o-mini',
+        name: 'GPT 4o mini',
         description: 'Faster, cost-efficient',
       },
     ]
   },
+     */
 ];
 
 export default function ModelSelector({ value, onChange, disabled }: ModelSelectorProps) {

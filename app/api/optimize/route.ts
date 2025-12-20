@@ -178,7 +178,7 @@ export async function POST(request: Request) {
 
       // [FIX] 針對 mini 模型 (通常是 Reasoning 模型) 強制設定 temperature 為 1
       // 許多新模型不支援非 1 的 temperature
-      const isReasoningModel = targetModel.includes('mini') || targetModel.includes('o1');
+      const isReasoningModel = targetModel.includes('mini') || targetModel.includes('o1') || targetModel.includes('gpt-5');
 
       const completion = await openai.chat.completions.create({
         messages: [{ role: "user", content: metaPrompt }],
