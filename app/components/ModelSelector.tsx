@@ -148,12 +148,6 @@ export default function ModelSelector({ value, onChange, disabled }: ModelSelect
         >
           {/* 修改處：這裡加入了 w-full 確保內容寬度 */}
           <div className="flex items-center gap-3 overflow-hidden w-full">
-            <div className={`
-            p-1.5 rounded-lg transition-colors shrink-0
-            ${isOpen ? 'bg-indigo-500 text-white' : 'bg-slate-800 text-indigo-400'}
-          `}>
-              {selectedModel?.icon || <Cpu className="w-4 h-4" />}
-            </div>
             {/* 修改處：加入 min-w-0 與 flex-1 來強制文字截斷 */}
             <div className="flex flex-col items-start min-w-0 flex-1">
               <span className="truncate w-full text-left text-slate-200">{selectedModel?.name || 'Select Model'}</span>
@@ -201,13 +195,6 @@ export default function ModelSelector({ value, onChange, disabled }: ModelSelect
                               >
                                 {/* 修改處：這裡也加入了 w-full */}
                                 <div className="flex items-center gap-3 overflow-hidden w-full">
-                                  <div className={`
-                             p-1.5 rounded-md flex-shrink-0 transition-colors
-                             ${isSelected ? 'bg-indigo-500 text-white' : 'bg-slate-800 text-slate-400 group-hover:text-slate-200 group-hover:bg-slate-700'}
-                           `}>
-                                    {model.icon}
-                                  </div>
-
                                   {/* 修改處：加入 min-w-0 與 flex-1 來強制文字截斷 */}
                                   <div className="flex flex-col min-w-0 flex-1">
                              <span className={`text-sm font-medium truncate w-full text-left ${isSelected ? 'text-indigo-200' : 'text-slate-300 group-hover:text-slate-100'}`}>
