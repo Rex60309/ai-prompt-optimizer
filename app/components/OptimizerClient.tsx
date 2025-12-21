@@ -91,7 +91,7 @@ export default function OptimizerClient() {
     const [generationModel, setGenerationModel] = useState('gemini-2.5-flash');
 
     // 策略選擇狀態
-    const [optimizationStrategy, setOptimizationStrategy] = useState<StrategyType>('zero-shot');
+    const [optimizationStrategy, setOptimizationStrategy] = useState<StrategyType>('role-play');
 
     const [isJudging, setIsJudging] = useState(false);
     const [judgeResult, setJudgeResult] = useState<JudgeResult | null>(null);
