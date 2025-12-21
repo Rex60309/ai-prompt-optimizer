@@ -19,7 +19,7 @@ CRITICAL CONSTRAINTS (Must Follow):
    - Write the optimized prompt itself in **Traditional Chinese (繁體中文)**.
    - Include an explicit instruction within the optimized prompt asking the target model to "Answer in Traditional Chinese (請用繁體中文回答)".
 3. **No Placeholders**: The output must be a **ready-to-execute prompt**, NOT a template. Do NOT use phrases like "[Insert Text Here]" or "Please provide...". If details are missing, you must **infer reasonable context** based on the chosen strategy (e.g., assume a general audience if not specified).
-4. **Formatting**: Keep the format clean. Do NOT use bolding (**) for list items. Use standard numbering or bullet points.
+4. **Formatting**: Keep the format clean. Do NOT use bolding (**) for list items.
 5. **Efficiency**: Keep the prompt concise but potent. Avoid unnecessary polite phrases (e.g., "If you wouldn't mind...").
 `;
 
