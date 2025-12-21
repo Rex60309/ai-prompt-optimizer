@@ -78,7 +78,7 @@ export async function POST(request: Request) {
     
       Here are the evaluation criteria:
       1.  **內容完整度 Completeness & Detail**: Does the response cover all key aspects of the topic with sufficient depth?
-      2.  **需求符合度 Adherence to Instructions**: Does the output strictly follow all explicit constraints?
+      2.  **需求符合度 Conformity**: Does the output strictly follow all explicit constraints?
       3.  **結構清晰度 Clarity & Structure**: Is the logic flow coherent? Does it effectively use formatting?
       4.  **創意與洞察力 Creativity & Insight**: Does the content offer unique perspectives or deep analysis?
       5.  **語氣風格 Tone & Style**: Is the tone engaging and appropriate for the context?
