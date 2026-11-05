@@ -2,6 +2,7 @@
 
 'use client';
 
+import { useLanguage } from './Language';
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Check, Lightbulb, Layers, BrainCircuit, Sparkles } from 'lucide-react';
 
@@ -17,27 +18,29 @@ interface StrategySelectorProps {
 const STRATEGIES: { id: StrategyType; name: string; icon: React.ReactNode }[] = [
     {
         id: 'role-play',
-        name: 'Role Play',
+        name: '角色扮演',
         icon: <Lightbulb className="w-3 h-3" />
     },
     {
         id: 'structured',
-        name: 'Structured',
+        name: '結構化',
         icon: <Layers className="w-3 h-3" />
     },
     {
         id: 'cot',
-        name: 'Chain of Thought',
+        name: '思維鏈',
         icon: <BrainCircuit className="w-3 h-3" />
     },
     {
         id: 'hybrid',
-        name: 'Hybrid',
+        name: '混合策略',
         icon: <Sparkles className="w-3 h-3" />
     },
 ];
 
 export default function StrategySelector({ value, onChange, disabled }: StrategySelectorProps) {
+    const { t } = useLanguage();
+    const names: Record<StrategyType, string> = { 'role-play': t('角色扮演', 'Role play'), structured: t('結構化', 'Structured'), cot: t('思維鏈', 'Chain of thought'), hybrid: t('混合策略', 'Hybrid') };
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -67,7 +70,7 @@ export default function StrategySelector({ value, onChange, disabled }: Strategy
                 disabled={disabled}
                 className={`
           relative w-full flex items-center justify-between
-          bg-slate-950 text-slate-200 
+          bg-slate-950 text-slate-200
           border transition-all duration-300
           rounded-xl px-4 py-2.5
           text-sm font-medium
@@ -88,7 +91,7 @@ export default function StrategySelector({ value, onChange, disabled }: Strategy
                     </div>
 
                     <div className="flex flex-col items-start min-w-0 flex-1">
-                        <span className="truncate w-full text-left">{selectedStrategy.name}</span>
+                        <span className="truncate w-full text-left">{names[selectedStrategy.id]}</span>
                     </div>
                 </div>
 
@@ -108,7 +111,7 @@ export default function StrategySelector({ value, onChange, disabled }: Strategy
         ">
                     <div className="p-1.5 space-y-1">
                         <div className="px-3 py-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-                            Optimization Strategy
+                            {t('選擇優化策略', 'Choose a strategy')}
                         </div>
 
                         {STRATEGIES.map((strategy) => {
@@ -136,7 +139,7 @@ export default function StrategySelector({ value, onChange, disabled }: Strategy
 
                                         <div className="flex flex-col min-w-0 flex-1">
                         <span className={`text-sm font-medium truncate w-full text-left ${isSelected ? 'text-purple-200' : 'text-slate-300 group-hover:text-slate-100'}`}>
-                          {strategy.name}
+                          {names[strategy.id]}
                         </span>
                                         </div>
                                     </div>

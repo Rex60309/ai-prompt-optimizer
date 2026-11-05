@@ -44,5 +44,9 @@ next-env.d.ts
 .idea
 
 #data
-/benchmark
+/benchmark/results
+/benchmark/datasets
 /result
+!.env.example
+
+/.npm-cache/

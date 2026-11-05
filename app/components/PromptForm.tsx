@@ -2,12 +2,12 @@
 
 'use client';
 
+import { useLanguage } from './Language';
 import { useState, FormEvent, useEffect } from 'react';
 import { Wand2, PenLine } from 'lucide-react';
 
 interface PromptFormProps {
   isLoading: boolean;
-  setIsLoading: (isLoading: boolean) => void;
   onSubmit: (prompt: string) => void;
   initialPrompt?: string;
   buttonText?: string;
@@ -15,11 +15,11 @@ interface PromptFormProps {
 
 export default function PromptForm({
   isLoading,
-  setIsLoading,
   onSubmit,
   initialPrompt = '',
   buttonText = 'Step 1: Optimize',
 }: PromptFormProps) {
+  const { t } = useLanguage();
   const [currentPrompt, setCurrentPrompt] = useState(initialPrompt);
   const [isFocused, setIsFocused] = useState(false);
 
@@ -29,6 +29,7 @@ export default function PromptForm({
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (isLoading) return;
     if (!currentPrompt.trim()) {
       alert('Please enter a prompt.');
       return;
@@ -37,7 +38,7 @@ export default function PromptForm({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.ctrlKey && e.key === 'Enter') {
+    if (!isLoading && e.ctrlKey && e.key === 'Enter') {
       if (currentPrompt.trim()) {
         onSubmit(currentPrompt);
       }
@@ -50,8 +51,8 @@ export default function PromptForm({
       <div
         className={`
           relative flex flex-col w-full h-full bg-slate-900/50 backdrop-blur-sm rounded-2xl border transition-all duration-300 ease-in-out shadow-lg overflow-hidden
-          ${isFocused 
-            ? 'border-indigo-500/50 ring-2 ring-indigo-500/20 shadow-indigo-500/10' 
+          ${isFocused
+            ? 'border-indigo-500/50 ring-2 ring-indigo-500/20 shadow-indigo-500/10'
             : 'border-slate-700/50 hover:border-slate-600'
           }
         `}
@@ -64,7 +65,7 @@ export default function PromptForm({
             className="flex items-center gap-2 text-sm font-bold text-slate-200 uppercase tracking-wide cursor-pointer group"
           >
             <PenLine className="w-4 h-4 text-indigo-400 group-hover:text-indigo-300 transition-colors" />
-            <span>Input Prompt</span>
+            <span>{t('原始需求', 'Your prompt')}</span>
           </label>
         </div>
 
@@ -78,13 +79,13 @@ export default function PromptForm({
             onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            placeholder="Describe your task here... (Ctrl + Enter to submit)"
+            placeholder={t("例如：幫我規劃一份適合初學者、每週三天的居家運動計畫。", "Example: Create a three-day weekly home workout plan for a beginner.")}
             disabled={isLoading}
           />
 
           {/* 字數統計 */}
           <div className="absolute bottom-3 right-5 text-xs text-slate-400 font-mono pointer-events-none">
-            {currentPrompt.length} chars
+            {currentPrompt.length} {t("字", "characters")}
           </div>
         </div>
 
@@ -92,9 +93,9 @@ export default function PromptForm({
         <div className="flex items-center justify-between px-5 py-3 bg-slate-900/80 border-t border-slate-700/50 shrink-0">
           <div className="text-xs text-slate-400 italic flex items-center gap-2">
             {isLoading ? (
-              <span className="animate-pulse text-indigo-400">AI is thinking...</span>
+              <span className="animate-pulse text-indigo-400">{t('正在優化提示詞…', 'Refining your prompt…')}</span>
             ) : (
-              'Ready to optimize'
+              t('Ctrl + Enter 快速優化', 'Ctrl + Enter to refine')
             )}
           </div>
 
@@ -112,7 +113,7 @@ export default function PromptForm({
             {isLoading ? (
               <>
                 <div className="animate-spin h-4 w-4 border-2 border-white/20 border-t-white rounded-full"></div>
-                Processing...
+                {t("處理中…", "Processing…")}
               </>
             ) : (
               <>

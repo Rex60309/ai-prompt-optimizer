@@ -1,37 +1,17 @@
-// app/page.tsx
-
+"use client";
+import { Languages, ArrowLeftRight } from 'lucide-react';
 import OptimizerClient from './components/OptimizerClient';
-
-export default function HomePage() {
-    return (
-        <main className="min-h-screen w-full bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500/30 selection:text-indigo-200 relative overflow-hidden">
-
-            {/* 背景光暈效果 (Ambient Background Effects) */}
-            <div className="fixed inset-0 z-0 pointer-events-none">
-                <div className="absolute top-[-10%] left-[20%] w-[500px] h-[500px] bg-indigo-500/20 rounded-full blur-[100px] opacity-40 mix-blend-screen animate-pulse" />
-                <div className="absolute bottom-[-10%] right-[10%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] opacity-30 mix-blend-screen" />
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150"></div>
-            </div>
-
-            <div className="relative z-10 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-                {/* Header Section */}
-                <header className="mb-10 text-center space-y-3">
-                    <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-lg">
-                        AI Prompt <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Optimizer</span>
-                    </h1>
-                    <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-                        Refine, Generate, and Compare prompts.
-                    </p>
-                </header>
-
-                {/* Client Application */}
-                <OptimizerClient />
-
-                {/* Footer */}
-                <footer className="mt-20 text-center text-slate-600 text-sm border-t border-slate-800/50 pt-8">
-                    <p>© {new Date().getFullYear()} Hyh</p>
-                </footer>
-            </div>
-        </main>
-    );
+import { LanguageProvider, useLanguage } from './components/Language';
+function Workspace() {
+  const { t, toggle, language } = useLanguage();
+  return <main className="min-h-screen bg-slate-950 text-slate-100 selection:bg-indigo-500/30">
+    <div className="pointer-events-none fixed inset-x-0 top-0 h-96 bg-[radial-gradient(ellipse_at_top,rgba(99,102,241,0.12),transparent_65%)]" />
+    <div className="relative mx-auto max-w-7xl px-4 sm:px-8 py-5 sm:py-7">
+      <nav className="mb-8 flex items-center justify-between gap-4 border-b border-slate-800/80 pb-5"><span className="text-2xl sm:text-3xl font-semibold tracking-tight">AI Prompt <span className="text-indigo-400">Optimizer</span></span><button onClick={toggle} aria-label={t('切換為英文介面', 'Switch to Chinese')} className="group inline-flex shrink-0 items-center gap-2.5 rounded-xl border border-indigo-400/30 bg-gradient-to-br from-indigo-500/15 to-violet-500/10 px-3.5 py-2.5 text-sm font-medium text-indigo-100 shadow-sm transition-all duration-200 hover:border-indigo-400/70 hover:from-indigo-500/25 hover:to-violet-500/20 hover:shadow-lg hover:shadow-indigo-500/10 active:scale-95"><Languages className="h-4 w-4 text-indigo-300" aria-hidden /><span>{language === 'zh' ? 'English' : '繁體中文'}</span><ArrowLeftRight className="h-3.5 w-3.5 text-indigo-400 transition-transform group-hover:translate-x-0.5" aria-hidden /></button></nav>
+      <header className="mb-7"><h1 className="w-fit bg-gradient-to-r from-sky-200 via-indigo-300 to-violet-400 bg-clip-text text-2xl sm:text-3xl font-semibold leading-relaxed tracking-tight text-transparent">{t('更清楚的指令，更好的回答。', 'Clearer prompts. Better answers.')}</h1></header>
+      <OptimizerClient />
+      <footer className="mt-16 border-t border-slate-800/80 py-7 text-center text-sm text-slate-600"><p>© {new Date().getFullYear()} Hyh</p></footer>
+    </div>
+  </main>;
 }
+export default function HomePage() { return <LanguageProvider><Workspace /></LanguageProvider>; }

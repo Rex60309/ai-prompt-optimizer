@@ -2,8 +2,10 @@
 
 'use client';
 
+import { useLanguage } from './Language';
+import { MODELS } from '../lib/models';
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check, Cpu, Zap, Box, Layers, Flame, BrainCircuit } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
 
 interface ModelSelectorProps {
   value: string;
@@ -23,89 +25,10 @@ interface ModelGroup {
   items: ModelOption[];
 }
 
-// 模型列表設定 (Updated with Trending Qwen Models)
-const MODEL_GROUPS: ModelGroup[] = [
-  {
-    groupName: 'DeepSeek',
-    items: [
-      {
-        id: 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B',
-        name: 'DeepSeek R1 Distill (Qwen 32B)',
-        description: 'Best for CoT & Optimization',
-      },
-      {
-        id: 'deepseek-ai/DeepSeek-R1-Distill-Qwen-14B',
-        name: 'DeepSeek R1 Distill (Qwen 14B)',
-        description: 'Lightweight Reasoning',
-      },
-    ]
-  },
-  {
-    groupName: 'Qwen Series',
-    items: [
-      {
-        id: 'Qwen/Qwen2.5-72B-Instruct',
-        name: 'Qwen 2.5 72B',
-        description: 'Flagship model, high intelligence',
-      },
-      {
-        id: 'Qwen/Qwen2.5-7B-Instruct',
-        name: 'Qwen 2.5 7B',
-        description: 'Fast & Efficient',
-      },
-    ]
-  },
-  {
-    groupName: 'Google DeepMind',
-    items: [
-      {
-        id: 'gemini-2.5-flash',
-        name: 'Gemini 2.5 Flash',
-        description: 'Fast, efficient, low latency',
-      },
-      {
-        id: 'gemini-2.5-flash-lite',
-        name: 'Gemini 2.5 Flash Lite',
-        description: 'Reasoning & complex tasks',
-      },
-    ]
-  },
-  {
-    groupName: 'Meta AI',
-    items: [
-      {
-        id: 'llama-3.1-8b-instant',
-        name: 'Llama 3.1 8B',
-        description: 'Super fast open model',
-      },
-      {
-        id: 'llama-3.3-70b-versatile',
-        name: 'Llama 3.3 70B',
-        description: 'Balanced performance',
-      },
-    ]
-  },
-  {
-    groupName: 'OpenAI',
-    items: [
-        /*
-          {
-          id: 'gpt-5.2',
-          name: 'GPT 5.2',
-          description: 'Smart',
-        },
-        */
-      {
-        id: 'gpt-4o-mini',
-        name: 'GPT 4o mini',
-        description: 'Fast, cost-efficient',
-      },
-    ]
-  },
-
-];
+const MODEL_GROUPS: ModelGroup[] = [{ groupName: 'Google · 免費方案', items: MODELS.filter(m => m.provider === 'google') }, { groupName: 'Groq · 免費方案', items: MODELS.filter(m => m.provider === 'groq') }];
 
 export default function ModelSelector({ value, onChange, disabled }: ModelSelectorProps) {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -135,7 +58,7 @@ export default function ModelSelector({ value, onChange, disabled }: ModelSelect
             disabled={disabled}
             className={`
           relative w-full flex items-center justify-between
-          bg-slate-950 text-slate-200 
+          bg-slate-950 text-slate-200
           border transition-all duration-300
           rounded-xl px-4 py-2.5
           text-sm font-medium
@@ -153,7 +76,7 @@ export default function ModelSelector({ value, onChange, disabled }: ModelSelect
             <div className="flex flex-col items-start min-w-0 flex-1">
               <span className="truncate w-full text-left text-slate-200">{selectedModel?.name || 'Select Model'}</span>
               <span className="truncate w-full text-left text-[10px] text-slate-500 font-normal">
-              {selectedModel?.description}
+              {t(selectedModel?.description || "", "Free tier API")}
             </span>
             </div>
           </div>
@@ -173,9 +96,9 @@ export default function ModelSelector({ value, onChange, disabled }: ModelSelect
         ">
               <div className="max-h-[320px] overflow-y-auto custom-scrollbar p-1.5 space-y-1">
                 {MODEL_GROUPS.map((group) => (
-                    <div key={group.groupName} className="mb-2 last:mb-0">
+                    <div key={t(group.groupName, group.groupName.replace("免費方案", "Free tier"))} className="mb-2 last:mb-0">
                       <div className="px-3 py-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-                        {group.groupName}
+                        {t(group.groupName, group.groupName.replace("免費方案", "Free tier"))}
                       </div>
 
                       <div className="space-y-1">
@@ -202,7 +125,7 @@ export default function ModelSelector({ value, onChange, disabled }: ModelSelect
                                {model.name}
                              </span>
                                     <span className="text-[10px] text-slate-500 truncate w-full text-left group-hover:text-slate-400">
-                               {model.description}
+                               {t(model.description, "Free tier API")}
                              </span>
                                   </div>
                                 </div>

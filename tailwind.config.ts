@@ -1,5 +1,6 @@
 // tailwind.config.ts
 
+import typography from '@tailwindcss/typography'
 import type { Config } from 'tailwindcss'
 
 export default {
@@ -14,6 +15,6 @@ export default {
   },
   plugins: [
     // 插件的寫法和 v3 一樣，所以 typography 插件可以照常使用
-    require('@tailwindcss/typography'),
+    typography,
   ],
 } satisfies Config
