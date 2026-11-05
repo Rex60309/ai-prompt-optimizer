@@ -1,15 +1,10 @@
+// app/api/judge/route.ts
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-// --- 強力 JSON 解析器 ---
+// --- 強力 JSON 解析器 (防護 LLM 輸出格式錯誤) ---
 function aggressiveJsonParse(text: string) {
-  // 1. 基本清理：移除 Markdown 標記
-  let cleaned = text
-      .replace(/```json/gi, "")
-      .replace(/```/g, "")
-      .trim();
-
-  // 2. 提取最外層的大括號 (防止前後有雜訊文字)
+  let cleaned = text.replace(/```json/gi, "").replace(/```/g, "").trim();
   const firstOpen = cleaned.indexOf('{');
   const lastClose = cleaned.lastIndexOf('}');
 
@@ -20,24 +15,18 @@ function aggressiveJsonParse(text: string) {
   }
 
   try {
-    // 3. 嘗試標準解析
     return JSON.parse(cleaned);
   } catch (e) {
-    // 4. 如果失敗，嘗試修復常見錯誤：
-    // 很多時候 LLM 會在字串裡直接換行，這是 JSON 不允許的。
-    // 我們嘗試把字串內的「實際換行」替換成「\n」
-    // 注意：這是一個簡單的 heuristic 修復，無法涵蓋所有情況
     try {
       const fixed = cleaned.replace(/\n/g, "\\n").replace(/\r/g, "");
       return JSON.parse(fixed);
     } catch (e2) {
-      // 如果還是失敗，拋出原始內容以便除錯
       throw new Error(`Parse failed. Content snippet: ${cleaned.substring(0, 50)}...`);
     }
   }
 }
 
-// --- 輔助函式：交換文字中的「前者」與「後者」 ---
+// --- 輔助函式：交換文字中的「前者」與「後者」 (處理位置偏差) ---
 function swapTerminology(text: string): string {
   if (!text) return "";
   return text.replace(/前者/g, "___TEMP___")
@@ -45,129 +34,126 @@ function swapTerminology(text: string): string {
       .replace(/___TEMP___/g, "後者");
 }
 
-export async function POST(request: Request) {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: "OPENAI_API_KEY is not set." }, { status: 500 });
+const JUDGE_PANEL = [
+  {
+    id: 'logic',
+    persona: '嚴格的評審',
+    focus: '所有面向揭完成評估並給出具體評分與建設性回饋',
+    temperature: 0.2,
+    prefix: 'JudgeA:'
+  },
+  {
+    id: 'creative',
+    persona: '嚴格的評審',
+    focus: '所有面向揭完成評估並給出具體評分與建設性回饋',
+    temperature: 0.6,
+    prefix: 'JudgeB:'
+  },
+  {
+    id: 'practical',
+    persona: '嚴格的評審',
+    focus: '所有面向揭完成評估並給出具體評分與建設性回饋',
+    temperature: 0.4,
+    prefix: 'JudgeC:'
   }
+];
 
-  const openai = new OpenAI({ apiKey });
+export async function POST(request: Request) {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) return NextResponse.json({ error: "GROQ_API_KEY is not set." }, { status: 500 });
+
+  const openai = new OpenAI({
+    apiKey: apiKey,
+    baseURL: "https://api.groq.com/openai/v1"
+  });
 
   try {
     const { originalPrompt, outputA, outputB } = await request.json();
-
-    if (!originalPrompt || !outputA || !outputB) {
-      return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 });
-    }
-
-    // ★★★ 建議先改回 gpt-4o 測試，確認是否為模型問題 ★★★
-    const JUDGE_MODEL = 'gpt-5-mini';
+    const JUDGE_MODEL = 'llama-3.3-70b-versatile';
 
     const isSwapped = Math.random() > 0.5;
     const promptContentA = isSwapped ? outputB : outputA;
     const promptContentB = isSwapped ? outputA : outputB;
 
-    const judgeMetaPrompt = `
-      You are a meticulous and impartial AI Output Evaluator. Your task is to analyze and compare two outputs (Output A and Output B).
-      Your evaluation must be based on the following five criteria, scoring each from 1 (worst) to 10 (best).
-    
-      Here are the inputs you will receive:
-      - **Original User Prompt**: The initial request from the user.
-      - **Output A**: Candidate Response A.
-      - **Output B**: Candidate Response B.
-    
-      Here are the evaluation criteria:
-      1.  **內容完整度 Completeness & Detail**: Does the response cover all key aspects of the topic with sufficient depth?
-      2.  **需求符合度 Conformity**: Does the output strictly follow all explicit constraints?
-      3.  **結構清晰度 Clarity & Structure**: Is the logic flow coherent? Does it effectively use formatting?
-      4.  **創意與洞察力 Creativity & Insight**: Does the content offer unique perspectives or deep analysis?
-      5.  **語氣風格 Tone & Style**: Is the tone engaging and appropriate for the context?
-    
-      Please provide your response ONLY in a valid JSON format. Do not include any text, explanations, or markdown formatting outside of the JSON object. The JSON object should have two keys: "criteria" and "summary".
-      - The "criteria" key should be an array of objects, where each object represents one evaluation criterion and contains: "criterionName", "scoreA", "scoreB", and a brief "justification".
-      - The "summary" key should contain a concise overall analysis, comparing the two outputs and declaring which one is superior and why.
-    
-      Please note the following:
-      - Use "traditional chinese" to response.
-      - Don't let scores get too inflated.
-      - 兩者的分數不能相同，可以到小數點後第一位，且允許差距大
-      - Please replace Output A with the term "前者" when using output; replace Output B with the term "後者" when using output.
-      - 評語不要有Output A或Output B的詞彙出現
-      - 請無視是否有回答截斷的部分，請就已產出的內容作評分比較
-      - **CRITICAL**: The "summary" field MUST start with a bold statement indicating the winner, followed by a newline. Example: "**前者:表現較好!**\\n\\n(Rest of the summary...)"
-      - Do not output markdown code blocks. Output raw JSON only.
-    
-      **INPUTS:**
-      **Original User Prompt:**
-      """
-      ${originalPrompt}
-      """
-      **Output A:**
-      """
-      ${promptContentA}
-      """
-      **Output B:**
-      """
-      ${promptContentB}
-      """
-    `;
+    const evaluationPromises = JUDGE_PANEL.map(async (judge) => {
+      // 修改重點：強化具體對比要求，禁止抽象詞彙
+      const judgeMetaPrompt = `
+        You are a "${judge.persona}". ${judge.focus}
+        Analyze and compare Output A and Output B in Traditional Chinese.
+      
+        ### 評分與評語原則：
+        1. **禁止抽象與概括**：嚴禁使用「表現較好」、「更全面」、「更實用」、「略勝一籌」、「基本符合」等模糊詞彙。
+        2. **實質性對比**：必須具體說明差異。例如：「前者僅給出清單，而後者則為每一項增加了具體的執行步驟與風險提示」或「後者在語氣上比前者多使用了引導式提問」。
+        3. **引用證據**：請從 A 或 B 中引用關鍵字句來支持你的分析。
+        4. **不要提及維度名稱**：在評語中不要說「在內容完整度方面...」，請直接描述內容本身的優劣。
+        5. **評分精確度**：評分必須到小數點後第一位 (例如 8.4)。兩者分數不能相同。
 
-    const response = await openai.chat.completions.create({
-      model: JUDGE_MODEL,
-      messages: [
-        { role: "system", content: "You are a JSON generator. output valid JSON only." },
-        { role: "user", content: judgeMetaPrompt }
-      ],
-      response_format: { type: "json_object" }, // 強制 JSON
+        ### 輸出格式 (僅限 JSON):
+        {
+          "criteria": [
+            { "criterionName": "內容完整度", "scoreA": 8.1, "scoreB": 9.2, "justification": "前者漏掉了關於...的具體數據；後者則補足了...並在結尾增加了...的延伸建議。" },
+            { "criterionName": "需求符合度", "scoreA": 7.2, "scoreB": 8.5, "justification": "前者忽視了原始需求中...的要求；後者則精確捕捉了...這一核心目標。" },
+            { "criterionName": "結構清晰度", "scoreA": 8.0, "scoreB": 7.3, "justification": "前者使用了層次分明的 Markdown 標題，導航感強；後者的段落過長，缺乏清晰的層級劃分。" },
+            { "criterionName": "創意與洞察力", "scoreA": 6.2, "scoreB": 8.8, "justification": "前者內容流於表面；後者提出了關於...的獨特視角，且這種觀點在前者中完全未被提及。" },
+            { "criterionName": "語氣風格", "scoreA": 7.5, "scoreB": 9.3, "justification": "前者語氣生硬機械；後者展現了強烈的...風格，並使用了如『...』等感性詞彙。" }
+          ],
+          "summary": "直接進入具體的對比總結。描述後者如何透過具體的改進行為（例如：增加了 Persona 設定、明確了 CoT 步驟）解決了前者的哪些實際缺陷。",
+          "weaknesses": "列出 2-3 個針對『後者』的具體修正建議，必須具體到可以被 Prompt 工程師拿來修正指令。"
+        }
+        
+        Rules: Replace Output A with "前者", Output B with "後者".
+        
+        **Original User Prompt:** """${originalPrompt}"""
+        **前者 (A):** """${promptContentA}"""
+        **後者 (B):** """${promptContentB}"""
+      `;
+
+      const response = await openai.chat.completions.create({
+        model: JUDGE_MODEL,
+        messages: [{ role: "system", content: "You are a precise analyzer. Answer in Traditional Chinese. Output JSON only." }, { role: "user", content: judgeMetaPrompt }],
+        response_format: { type: "json_object" },
+        temperature: judge.temperature,
+      });
+
+      let parsed = aggressiveJsonParse(response.choices[0].message.content || "");
+
+      if (isSwapped) {
+        parsed.criteria = parsed.criteria.map((item: any) => ({
+          ...item, scoreA: item.scoreB, scoreB: item.scoreA, justification: swapTerminology(item.justification)
+        }));
+        parsed.summary = swapTerminology(parsed.summary);
+      }
+      return { success: true, judgeId: judge.id, prefix: judge.prefix, data: parsed };
     });
 
-    const textResponse = response.choices[0].message.content || "";
+    const results = (await Promise.all(evaluationPromises)).filter(r => r.success);
+    const CRITERIA_NAMES = ["內容完整度", "需求符合度", "結構清晰度", "創意與洞察力", "語氣風格"];
 
-    // --- 解析與錯誤處理 ---
-    let judgeResult;
-    try {
-      judgeResult = aggressiveJsonParse(textResponse);
-    } catch (parseError: any) {
-      // ★★★ 關鍵除錯點 ★★★
-      // 請在你的 VS Code / Terminal 看這裡印出的內容
-      console.error("=============== JSON PARSE ERROR ===============");
-      console.error("Error Message:", parseError.message);
-      console.error("Raw AI Response:", textResponse);
-      console.error("================================================");
+    const aggregatedCriteria = CRITERIA_NAMES.map((name, index) => {
+      let sumA = 0, sumB = 0, combinedJ = "";
+      results.forEach((res) => {
+        const crit = res.data.criteria.find((c: any) => c.criterionName.includes(name.split(" ")[0])) || res.data.criteria[index];
+        if (crit) {
+          sumA += crit.scoreA; sumB += crit.scoreB;
+          combinedJ += `【${res.prefix}】：${crit.justification}\n`;
+        }
+      });
+      return {
+        criterionName: name,
+        scoreA: Number((sumA / results.length).toFixed(1)),
+        scoreB: Number((sumB / results.length).toFixed(1)),
+        justification: combinedJ.trim()
+      };
+    });
 
-      return NextResponse.json({
-        error: "AI response was not in a valid JSON format.",
-        details: parseError.message,
-        raw_snippet: textResponse.substring(0, 100) // 回傳部分內容給前端顯示
-      }, { status: 500 });
-    }
-
-    // --- 位置偏差還原 ---
-    if (isSwapped) {
-      if (judgeResult.criteria) {
-        judgeResult.criteria = judgeResult.criteria.map((item: any) => ({
-          ...item,
-          scoreA: item.scoreB,
-          scoreB: item.scoreA,
-          justification: swapTerminology(item.justification)
-        }));
-      }
-      if (judgeResult.summary) {
-        judgeResult.summary = swapTerminology(judgeResult.summary);
-      }
-    }
-
-    // --- 美化輸出 ---
-    if (judgeResult.summary) {
-      judgeResult.summary = judgeResult.summary
-          .replace(/前者[:：]/, "**前者(原始)**：")
-          .replace(/後者[:：]/, "**後者(優化)**：");
-    }
-
-    return NextResponse.json(judgeResult);
+    return NextResponse.json({
+      criteria: aggregatedCriteria,
+      summary: results.map(res => `### ${res.prefix}\n${res.data.summary}`).join("\n\n---\n\n")
+          .replace(/前者[:：]/g, "**前者(原始)**：").replace(/後者[:：]/g, "**後者(優化)**："),
+      weaknesses: results.map(res => res.data.weaknesses).filter(Boolean).join(" ")
+    });
 
   } catch (error: any) {
-    console.error('Error in /api/judge:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

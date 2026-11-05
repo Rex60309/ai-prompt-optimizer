@@ -18,7 +18,7 @@ export default function PromptForm({
   setIsLoading,
   onSubmit,
   initialPrompt = '',
-  buttonText = 'Submit Prompt',
+  buttonText = 'Step 1: Optimize',
 }: PromptFormProps) {
   const [currentPrompt, setCurrentPrompt] = useState(initialPrompt);
   const [isFocused, setIsFocused] = useState(false);
