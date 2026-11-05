@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
 
-import "katex/dist/katex.min.css";
-import "./globals.css";
+import 'katex/dist/katex.min.css';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "AI prompt optimizer",
-  description: "Author: hyh",
+  title: 'AI prompt optimizer',
+  description: 'Author: hyh',
 };
 
 export default function RootLayout({
@@ -15,11 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-Hant" suppressHydrationWarning>
-      <body
-        className="antialiased"
-      >
-        {children}
-      </body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }

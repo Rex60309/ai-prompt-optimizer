@@ -3,68 +3,59 @@
 import { NextResponse } from 'next/server';
 
 import { complete } from '../../lib/server';
-interface Criterion { criterionName: string; scoreA: number; scoreB: number; justification: string }
+interface Criterion {
+  criterionName: string;
+  scoreA: number;
+  scoreB: number;
+  justification: string;
+}
 
 // --- 強力 JSON 解析器 (防護 LLM 輸出格式錯誤) ---
 
 function aggressiveJsonParse(text: string) {
-
-  let cleaned = text.replace(/```json/gi, "").replace(/```/g, "").trim();
+  let cleaned = text
+    .replace(/```json/gi, '')
+    .replace(/```/g, '')
+    .trim();
 
   const firstOpen = cleaned.indexOf('{');
 
   const lastClose = cleaned.lastIndexOf('}');
 
   if (firstOpen !== -1 && lastClose !== -1) {
-
     cleaned = cleaned.substring(firstOpen, lastClose + 1);
-
   } else {
-
-    throw new Error("No JSON brackets {} found in response");
-
+    throw new Error('No JSON brackets {} found in response');
   }
 
   try {
-
     return JSON.parse(cleaned);
-
   } catch {
-
     try {
-
-      const fixed = cleaned.replace(/\n/g, "\\n").replace(/\r/g, "");
+      const fixed = cleaned.replace(/\n/g, '\\n').replace(/\r/g, '');
 
       return JSON.parse(fixed);
-
     } catch {
-
       throw new Error(`Parse failed. Content snippet: ${cleaned.substring(0, 50)}...`);
-
     }
-
   }
-
 }
 
 // --- 輔助函式：交換文字中的「前者」與「後者」 (處理位置偏差) ---
 
 function swapTerminology(text: string): string {
+  if (!text) return '';
 
-  if (!text) return "";
+  return text
+    .replace(/前者/g, '___TEMP___')
 
-  return text.replace(/前者/g, "___TEMP___")
+    .replace(/後者/g, '前者')
 
-      .replace(/後者/g, "前者")
-
-      .replace(/___TEMP___/g, "後者");
-
+    .replace(/___TEMP___/g, '後者');
 }
 
 const JUDGE_PANEL = [
-
   {
-
     id: 'logic',
 
     persona: '嚴格的評審',
@@ -73,12 +64,10 @@ const JUDGE_PANEL = [
 
     temperature: 0.2,
 
-    prefix: 'JudgeA:'
-
+    prefix: 'JudgeA:',
   },
 
   {
-
     id: 'creative',
 
     persona: '嚴格的評審',
@@ -87,12 +76,10 @@ const JUDGE_PANEL = [
 
     temperature: 0.6,
 
-    prefix: 'JudgeB:'
-
+    prefix: 'JudgeB:',
   },
 
   {
-
     id: 'practical',
 
     persona: '嚴格的評審',
@@ -101,16 +88,12 @@ const JUDGE_PANEL = [
 
     temperature: 0.4,
 
-    prefix: 'JudgeC:'
-
-  }
-
+    prefix: 'JudgeC:',
+  },
 ];
 
 export async function POST(request: Request) {
-
   try {
-
     const { originalPrompt, outputA, outputB, model } = await request.json();
 
     const JUDGE_MODEL = model || 'openai/gpt-oss-20b';
@@ -122,7 +105,6 @@ export async function POST(request: Request) {
     const promptContentB = isSwapped ? outputA : outputB;
 
     const evaluationPromises = JUDGE_PANEL.map((judge) => async () => {
-
       // 修改重點：強化具體對比要求，禁止抽象詞彙
 
       const judgeMetaPrompt = `
@@ -177,78 +159,79 @@ export async function POST(request: Request) {
 
       `;
 
-      const response = await complete(judgeMetaPrompt, JUDGE_MODEL, true, request.signal, { temperature: judge.temperature, system: 'You are a precise analyzer. Answer in Traditional Chinese. Output JSON only.' });
+      const response = await complete(judgeMetaPrompt, JUDGE_MODEL, true, request.signal, {
+        temperature: judge.temperature,
+        system: 'You are a precise analyzer. Answer in Traditional Chinese. Output JSON only.',
+      });
       const parsed = aggressiveJsonParse(response.content);
 
       if (isSwapped) {
-
         parsed.criteria = parsed.criteria.map((item: Criterion) => ({
-
-          ...item, scoreA: item.scoreB, scoreB: item.scoreA, justification: swapTerminology(item.justification)
-
+          ...item,
+          scoreA: item.scoreB,
+          scoreB: item.scoreA,
+          justification: swapTerminology(item.justification),
         }));
 
         parsed.summary = swapTerminology(parsed.summary);
-
       }
 
       return { success: true, judgeId: judge.id, prefix: judge.prefix, data: parsed };
-
     });
 
     const results: Awaited<ReturnType<(typeof evaluationPromises)[number]>>[] = [];
     for (const evaluate of evaluationPromises) results.push(await evaluate());
 
-    const CRITERIA_NAMES = ["內容完整度", "需求符合度", "結構清晰度", "創意與洞察力", "語氣風格"];
+    const CRITERIA_NAMES = ['內容完整度', '需求符合度', '結構清晰度', '創意與洞察力', '語氣風格'];
 
     const aggregatedCriteria = CRITERIA_NAMES.map((name, index) => {
-
-      let sumA = 0, sumB = 0, combinedJ = "";
+      let sumA = 0,
+        sumB = 0,
+        combinedJ = '';
 
       results.forEach((res) => {
-
-        const crit = res.data.criteria.find((c: Criterion) => c.criterionName.includes(name.split(" ")[0])) || res.data.criteria[index];
+        const crit =
+          res.data.criteria.find((c: Criterion) => c.criterionName.includes(name.split(' ')[0])) ||
+          res.data.criteria[index];
 
         if (crit) {
-
-          sumA += crit.scoreA; sumB += crit.scoreB;
+          sumA += crit.scoreA;
+          sumB += crit.scoreB;
 
           combinedJ += `【${res.prefix}】：${crit.justification}\n`;
-
         }
-
       });
 
       return {
-
         criterionName: name,
 
         scoreA: Number((sumA / results.length).toFixed(1)),
 
         scoreB: Number((sumB / results.length).toFixed(1)),
 
-        justification: combinedJ.trim()
-
+        justification: combinedJ.trim(),
       };
-
     });
 
     return NextResponse.json({
-
       criteria: aggregatedCriteria,
 
-      summary: results.map(res => `### ${res.prefix}\n${res.data.summary}`).join("\n\n---\n\n")
+      summary: results
+        .map((res) => `### ${res.prefix}\n${res.data.summary}`)
+        .join('\n\n---\n\n')
 
-          .replace(/前者[:：]/g, "**前者(原始)**：").replace(/後者[:：]/g, "**後者(優化)**："),
+        .replace(/前者[:：]/g, '**前者(原始)**：')
+        .replace(/後者[:：]/g, '**後者(優化)**：'),
 
-      weaknesses: results.map(res => res.data.weaknesses).filter(Boolean).join(" ")
-
+      weaknesses: results
+        .map((res) => res.data.weaknesses)
+        .filter(Boolean)
+        .join(' '),
     });
-
   } catch (error: unknown) {
-
-    return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500 });
-
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : String(error) },
+      { status: 500 },
+    );
   }
-
 }

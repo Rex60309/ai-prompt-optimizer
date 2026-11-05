@@ -1,0 +1,8 @@
+node_modules
+.next
+.npm-cache
+benchmark/datasets
+benchmark/results
+benchmark/test-dataset.json
+result
+package-lock.json

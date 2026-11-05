@@ -37,7 +37,6 @@ CRITICAL: DO NOT introduce new requirements not in Original User Intent.
 // 將 feedback 封裝在明確的指示中，要求 AI 進行邏輯修正而非複製文字
 
 const getIterationInstruction = (feedback: string): string => {
-
   return `
 
   ITERATIVE OPTIMIZATION MODE:
@@ -67,19 +66,15 @@ const getIterationInstruction = (feedback: string): string => {
            If feedback says "too verbose", compress without losing requirements.
 
   `;
-
 };
 
 // --- 3. 定義不同策略的 Prompt 模板 (Strategy Instructions) ---
 
 const getStrategyInstruction = (strategy: string): string => {
-
   switch (strategy) {
-
     case 'role-play':
 
     default:
-
       return `
 
       STRATEGY: Persona-Driven Optimization.
@@ -89,7 +84,6 @@ const getStrategyInstruction = (strategy: string): string => {
       `;
 
     case 'structured':
-
       return `
 
       STRATEGY: Structured Component Prompting.
@@ -99,7 +93,6 @@ const getStrategyInstruction = (strategy: string): string => {
       `;
 
     case 'cot':
-
       return `
 
       STRATEGY: Chain of Thought (CoT).
@@ -109,7 +102,6 @@ const getStrategyInstruction = (strategy: string): string => {
       `;
 
     case 'hybrid':
-
       return `
 
       STRATEGY: Hybrid Optimization.
@@ -141,21 +133,15 @@ const getStrategyInstruction = (strategy: string): string => {
          - Ensure the prompt maintains high contextual flexibility while upholding rigid logical boundaries.
 
       `;
-
   }
-
 };
 
 export async function POST(request: Request) {
-
   try {
-
     const { prompt, model, strategy = 'role-play', feedback } = await request.json();
 
     if (!prompt) {
-
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
-
     }
 
     const targetModel = model || 'gemini-2.5-flash-lite';
@@ -172,7 +158,7 @@ export async function POST(request: Request) {
 
       ${getStrategyInstruction(strategy)}
 
-      ${feedback ? getIterationInstruction(feedback) : ""}
+      ${feedback ? getIterationInstruction(feedback) : ''}
 
       --------------------------------------------------
 
@@ -188,29 +174,33 @@ export async function POST(request: Request) {
 
     `;
 
-    const result = await complete(metaPrompt, targetModel, false, request.signal, { temperature: 0.3 });
+    const result = await complete(metaPrompt, targetModel, false, request.signal, {
+      temperature: 0.3,
+    });
     optimizedPrompt = result.content;
 
     // --- 強力後處理清理 (Post-Processing Cleanup) ---
 
     // 移除 markdown 代碼塊
 
-    optimizedPrompt = optimizedPrompt.replace(/^```[a-zA-Z]*\n/gm, "").replace(/```$/gm, "").trim();
+    optimizedPrompt = optimizedPrompt
+      .replace(/^```[a-zA-Z]*\n/gm, '')
+      .replace(/```$/gm, '')
+      .trim();
 
     // 移除常見的 AI 廢話開頭 (Regex 強力清理)
 
     const cleanupRegex = /^(好的|當然|根據|為了滿足|這是|以下是|Sure|Here is|Based on).+?(\n|:)/gi;
 
-    optimizedPrompt = optimizedPrompt.replace(cleanupRegex, "").trim();
+    optimizedPrompt = optimizedPrompt.replace(cleanupRegex, '').trim();
 
     return NextResponse.json({ optimizedPrompt, usage: result.usage });
-
   } catch (error: unknown) {
-
     console.error('Error in /api/optimize:', error);
 
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to optimize.' }, { status: 500 });
-
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to optimize.' },
+      { status: 500 },
+    );
   }
-
 }

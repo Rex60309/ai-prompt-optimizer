@@ -51,13 +51,13 @@ export default function PromptForm({
       <div
         className={`
           relative flex flex-col w-full h-full bg-slate-900/50 backdrop-blur-sm rounded-2xl border transition-all duration-300 ease-in-out shadow-lg overflow-hidden
-          ${isFocused
-            ? 'border-indigo-500/50 ring-2 ring-indigo-500/20 shadow-indigo-500/10'
-            : 'border-slate-700/50 hover:border-slate-600'
+          ${
+            isFocused
+              ? 'border-indigo-500/50 ring-2 ring-indigo-500/20 shadow-indigo-500/10'
+              : 'border-slate-700/50 hover:border-slate-600'
           }
         `}
       >
-
         {/* --- 頂部工具列 (Header) --- */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-slate-700/50 bg-slate-800/30 shrink-0">
           <label
@@ -79,13 +79,16 @@ export default function PromptForm({
             onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            placeholder={t("例如：幫我規劃一份適合初學者、每週三天的居家運動計畫。", "Example: Create a three-day weekly home workout plan for a beginner.")}
+            placeholder={t(
+              '例如：幫我規劃一份適合初學者、每週三天的居家運動計畫。',
+              'Example: Create a three-day weekly home workout plan for a beginner.',
+            )}
             disabled={isLoading}
           />
 
           {/* 字數統計 */}
           <div className="absolute bottom-3 right-5 text-xs text-slate-400 font-mono pointer-events-none">
-            {currentPrompt.length} {t("字", "characters")}
+            {currentPrompt.length} {t('字', 'characters')}
           </div>
         </div>
 
@@ -93,7 +96,9 @@ export default function PromptForm({
         <div className="flex items-center justify-between px-5 py-3 bg-slate-900/80 border-t border-slate-700/50 shrink-0">
           <div className="text-xs text-slate-400 italic flex items-center gap-2">
             {isLoading ? (
-              <span className="animate-pulse text-indigo-400">{t('正在優化提示詞…', 'Refining your prompt…')}</span>
+              <span className="animate-pulse text-indigo-400">
+                {t('正在優化提示詞…', 'Refining your prompt…')}
+              </span>
             ) : (
               t('Ctrl + Enter 快速優化', 'Ctrl + Enter to refine')
             )}
@@ -104,16 +109,17 @@ export default function PromptForm({
             disabled={isLoading || !currentPrompt.trim()}
             className={`
               flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg transition-all duration-200
-              ${isLoading
-                ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
-                : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-indigo-500/25 hover:-translate-y-0.5 active:translate-y-0 border border-transparent'
+              ${
+                isLoading
+                  ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+                  : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-indigo-500/25 hover:-translate-y-0.5 active:translate-y-0 border border-transparent'
               }
             `}
           >
             {isLoading ? (
               <>
                 <div className="animate-spin h-4 w-4 border-2 border-white/20 border-t-white rounded-full"></div>
-                {t("處理中…", "Processing…")}
+                {t('處理中…', 'Processing…')}
               </>
             ) : (
               <>
@@ -123,7 +129,6 @@ export default function PromptForm({
             )}
           </button>
         </div>
-
       </div>
     </form>
   );

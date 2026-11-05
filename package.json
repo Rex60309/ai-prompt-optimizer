@@ -9,7 +9,9 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
-    "benchmark": "node --experimental-strip-types benchmark/run-compare.ts"
+    "benchmark": "node --experimental-strip-types benchmark/run-compare.ts",
+    "format": "prettier --write \"app/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"benchmark/run-compare.ts\" \"*.{ts,mjs,js,json}\" \"README.md\" \".prettierrc.json\"",
+    "format:check": "prettier --check \"app/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"benchmark/run-compare.ts\" \"*.{ts,mjs,js,json}\" \"README.md\" \".prettierrc.json\""
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -40,6 +42,7 @@
     "baseline-browser-mapping": "^2.8.32",
     "eslint": "^9",
     "eslint-config-next": "16.0.0",
+    "prettier": "^3.9.10",
     "tailwindcss": "^4.0.0",
     "typescript": "^5"
   }
