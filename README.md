@@ -153,13 +153,13 @@ npm test
 
 四種策略均呈現正的平均增效。混合策略的平均得分提高題數最多，結構化位居第二。
 
-![報告原始圖：各策略勝分差分布](docs/images/score-margin-distribution.png)
+![報告原始圖：各策略勝分差分布](result/chart_margin_distribution_en.png)
 
 圖中縱軸為勝分差，0 為原始與優化回答同分；負值代表優化退步。小提琴寬度代表該分數附近的資料密度，不直接代表策略更穩定。此圖可用來觀察分布、離群值與失敗案例。
 
 #### 任務類別差異
 
-![報告原始圖：各任務的平均分數增益與 Token 用量](docs/images/task-cost-benefit.png)
+![報告原始圖：各任務的平均分數增益與 Token 用量](result/chart_task_cost_benefit_dual_axis.png)
 
 長條對應左軸分數增益，虛線對應右軸 Token 用量。依原圖可觀察：
 
@@ -171,7 +171,7 @@ npm test
 
 #### 成本與品質的取捨
 
-![報告原始圖：策略成本與品質增益象限](docs/images/cost-effectiveness.png)
+![報告原始圖：策略成本與品質增益象限](result/chart_cost_effectiveness_quadrant.png)
 
 橫軸為優化與生成流程的平均 Token 用量，縱軸為平均分數增益，虛線為跨策略平均值。原圖中，Role-play 用量最低；Hybrid 與 Structured 增益較高，但也消耗更多 Token。這提示系統可依品質需求與資源預算選擇策略，而不是一律使用最複雜的模板。
 
@@ -338,13 +338,13 @@ Each strategy is tested on 100 prompts. Optimization effectiveness is calculated
 
 All four strategies show positive mean gains. Hybrid has the most prompts with increased scores, followed by Structured.
 
-![Original report figure: score-margin distributions by strategy](docs/images/score-margin-distribution.png)
+![Original report figure: score-margin distributions by strategy](result/chart_margin_distribution_en.png)
 
 The vertical axis shows the score margin; zero means equal original and optimized scores, while negative values indicate regression. Violin width represents local data density, not stability directly. The figure can be used to inspect distributions, outliers, and failure cases.
 
 #### Differences Across Task Categories
 
-![Original report figure: mean score gains and token usage across tasks](docs/images/task-cost-benefit.png)
+![Original report figure: mean score gains and token usage across tasks](result/chart_task_cost_benefit_dual_axis.png)
 
 Bars show score gains on the left axis; dashed lines show token usage on the right. The original figure suggests:
 
@@ -356,7 +356,7 @@ These results support further research into task-based strategy selection, rathe
 
 #### Cost–Quality Trade-offs
 
-![Original report figure: strategy cost–quality quadrants](docs/images/cost-effectiveness.png)
+![Original report figure: strategy cost–quality quadrants](result/chart_cost_effectiveness_quadrant.png)
 
 The horizontal axis shows mean tokens used for optimization and generation; the vertical axis shows mean score gain. Dashed lines indicate cross-strategy means. Role-play uses the fewest tokens in the original figure, while Hybrid and Structured achieve higher gains at greater token usage. This motivates choosing strategies according to quality requirements and resource budgets rather than always applying the most complex template.
 

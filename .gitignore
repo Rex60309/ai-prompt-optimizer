@@ -43,8 +43,8 @@ next-env.d.ts
 # ws
 .idea
 
-# Local research data and generated artifacts (keep experiment code tracked)
-/benchmark
+# Local experiments and generated artifacts
+/benchmark/
 /tests
 /test-results/
 /playwright-report/
