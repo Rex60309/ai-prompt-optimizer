@@ -43,10 +43,13 @@ next-env.d.ts
 # ws
 .idea
 
-#data
-/benchmark/results
-/benchmark/datasets
-/result
+# Local research data and generated artifacts (keep experiment code tracked)
+/benchmark/datasets/
+/benchmark/results/
+/benchmark/test-dataset.json
+/result/
+/test-results/
+/playwright-report/
 !.env.example
 
 /.npm-cache/

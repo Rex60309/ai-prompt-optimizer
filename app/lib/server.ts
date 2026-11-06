@@ -10,7 +10,9 @@ export class ApiError extends Error {
 }
 export function text(value: unknown, name: string, max = Infinity): string {
   if (typeof value !== 'string' || !value.trim() || value.length > max)
-    throw new ApiError(`${name} 必須為 1–${max} 字元的文字`);
+    throw new ApiError(
+      Number.isFinite(max) ? `${name} 必須為 1–${max} 字元的文字` : `${name} 必須為非空白文字`,
+    );
   return value.trim();
 }
 export async function body(request: Request): Promise<Record<string, unknown>> {
@@ -116,7 +118,7 @@ export async function complete(
     const candidate = data.candidates?.[0];
     if (json && candidate?.finishReason === 'MAX_TOKENS')
       throw new ApiError('評審 JSON 超過模型輸出上限，請重試', 502);
-    const content = candidate.content?.parts
+    const content = candidate?.content?.parts
       ?.filter((p: { thought?: boolean }) => !p.thought)
       .map((p: { text?: string }) => p.text || '')
       .join('')
